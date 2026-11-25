@@ -7,7 +7,7 @@ dresser"*（把梳妆台左边的笔拿起来），场景里有 2 到 7 支长�
 指的是哪一支。本仓库包含冻结样本表、基于几何的参考实现、全部基线、7B 学习基线，
 以及能重新生成所有表格和图片的脚本。
 
-两条命令复现全部结果（只用 CPU，约 15 秒）：
+两条命令复现全部结果（只用 CPU，约 20 秒）：
 
 ```bash
 pip install -r requirements.txt
@@ -96,7 +96,7 @@ spatial-locative-repro/
 
 | 部分 | 要求 |
 |---|---|
-| 主实验（`scripts/run_all.sh`） | 任意 CPU，内存 < 1 GB，约 15 秒 |
+| 主实验（`scripts/run_all.sh`） | 任意 CPU，内存 < 1 GB，约 20 秒 |
 | 7B 基线（`scripts/run_llm_7b.sh`） | 1 张 NVIDIA RTX A5000（24 GB），峰值约 15.2 GB |
 | 磁盘 | 文件约 8 MB，含 git 历史约 15 MB；若另外下载 ALFRED 原始数据再加约 36 GB |
 
@@ -296,7 +296,7 @@ bash scripts/run_all.sh             # 把预测并进 T1 和 T12
 | 数据怎么准备？ | `data/README.md`：665 条可评分样本是怎么切出来的；重建脚本可选 |
 | 哪份配置复现主实验？ | 第 5 节：`configs/main.yaml` 记录了 `W_ORI = 0.2`；脚本没有选项开关 |
 | 模型怎么训练？ | 第 9 节：没有训练步骤；唯一超参由 5 折扫描得出 |
-| 模型怎么评测？ | 第 10 节：`bash scripts/run_all.sh`，CPU 上约 15 秒 |
+| 模型怎么评测？ | 第 10 节：`bash scripts/run_all.sh`，CPU 上约 20 秒 |
 | 指标存在哪？ | `results/paper_T*.csv`，一表一文件，另有 `paper_detail.csv` 逐样本 |
 | 和论文对得上吗？ | 第 11 节给出 `paper_T1_main.csv` 里要核对的五个值 |
 | 必须要 A5000 吗？ | 不需要。只有重跑 7B 预测才要，那批预测已经提交 |

@@ -11,7 +11,7 @@ refers to. The repository holds the frozen sample table, the geometry reference
 implementation, all baselines, the 7B baseline, and the scripts that regenerate every
 table and figure.
 
-Two commands reproduce everything (CPU only, about 15 s):
+Two commands reproduce everything (CPU only, about 20 s):
 
 ```bash
 pip install -r requirements.txt
@@ -106,7 +106,7 @@ spatial-locative-repro/
 
 | Component | Requirement |
 |---|---|
-| Main experiment (`scripts/run_all.sh`) | any CPU, < 1 GB RAM, about 15 s |
+| Main experiment (`scripts/run_all.sh`) | any CPU, < 1 GB RAM, about 20 s |
 | 7B baseline (`scripts/run_llm_7b.sh`) | 1 x NVIDIA RTX A5000 (24 GB), about 15.2 GB peak |
 | Disk | about 8 MB of files, 15 MB with the git history; about 36 GB more if you also download the raw ALFRED release |
 
@@ -325,7 +325,7 @@ configuration, inference, evaluation, reported result. Each link and where to fi
 | How is the data prepared? | `data/README.md`: how the 665 scorable samples were cut; rebuild scripts optional |
 | Which configuration reproduces the main experiment? | §5: `configs/main.yaml` records `W_ORI = 0.2`; no script takes a flag |
 | How is the model trained? | §9: no training step; the one hyper-parameter comes from a 5-fold sweep |
-| How is the model evaluated? | §10: `bash scripts/run_all.sh`, about 15 s on CPU |
+| How is the model evaluated? | §10: `bash scripts/run_all.sh`, about 20 s on CPU |
 | Where are the metrics stored? | `results/paper_T*.csv`, one file per table, plus `paper_detail.csv` per sample |
 | Do they match the paper? | §11 gives the five values to compare in `paper_T1_main.csv` |
 | Is the A5000 required? | No. Only regenerating the 7B predictions needs it; they are committed |
