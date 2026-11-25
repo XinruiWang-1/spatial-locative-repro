@@ -202,7 +202,7 @@ def main():
     rows, d0, drop = [], [], Counter()
     for _, r in miss.iterrows():
         if DIST_TO_YOU.search(r.Instruction or ""):
-            drop["X1 距离参照是你/我（与口径相违背）"] += 1
+            drop["X1 距离参照是 you/me（与口径相违背）"] += 1
             continue
         if r.Cat_Mentioned != 1:
             drop["X3 目标类别没提到"] += 1

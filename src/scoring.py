@@ -234,7 +234,7 @@ def write_report(tbl, sc, dir_s, fail, side_empty, one, n_dist, n_word):
          "> 数据：`clean_spatial_ext.csv`（冻结 v1.0）中 `Scorable==1` 的 665 条。",
          "> 规则：第一步方向筛池（筛空则作废），第二步距离（没说则池内任取），第三步文本（前两步都没有时才用）。", "",
          "## 1 结论", "",
-         f"- 可判分 **{total}** 条，按你的规则标注目标落在允许集合 **{hit} 条 = {hit/total*100:.1f}%**。",
+         f"- 可判分 **{total}** 条，按本方法的规则标注目标落在允许集合 **{hit} 条 = {hit/total*100:.1f}%**。",
          f"- 其中 **{free} 条是「白送」**：方向筛空后回退全池（{side_empty} 条）或只剩类别可选的"
          f"（{free-side_empty} 条），这些不是方法赢的，是题面没给约束。",
          f"- 扣掉白送，**真正被题面筛过一次的 {len(real)} 条命中率 "
@@ -255,7 +255,7 @@ def write_report(tbl, sc, dir_s, fail, side_empty, one, n_dist, n_word):
           f"**第二步 距离**：题面写 closest/nearest/furthest/farthest 的共 **{n_word} 条**"
           f"（{n_word/total*100:.1f}%），其中参照物能落到坐标、真正生效的 **{n_dist} 条**"
           f"（{n_dist/total*100:.2f}%），其余 {n_word-n_dist} 条参照是 edge/center 或颜色名，落不到坐标 → 作废。",
-          "  - 也就是说 **98% 以上的题面根本没提距离**，按你的规则第二步不触发，侧内任取都对；",
+          "  - 也就是说 **98% 以上的题面根本没提距离**，按本方法的规则第二步不触发，侧内任取都对；",
           "  - ALFRED 的「最近」是标注者的习惯，不是写在题面里的约束——这是这份数据的固有特点。", "",
           "**第三步 文本**：只有前两步都没有时才用，共 "
           f"{int((sc.Case=='⑤ 无方向·无距离 → 按文本选').sum())} 条（D1 档）。",
@@ -283,8 +283,8 @@ def write_report(tbl, sc, dir_s, fail, side_empty, one, n_dist, n_word):
           f"**对账**：{in_side} + {side_empty} - {dist_excl} = {dir_hit}（有方向部分的命中），"
           f"再加 D1 的 69 条按文本全中 = {int(sc.Target_In.sum())}。"
           "88.4% 里含 150 条白送，**别拿它和 73.7% 直接比**。", "",
-          "## 4 与你原话的逐条对应", "",
-          "| 你的说法 | 实现 | 数据里的实际情况 |", "|---|---|---|",
+          "## 4 规则条文与实现的逐条对应", "",
+          "| 规则条文 | 实现 | 数据里的实际情况 |", "|---|---|---|",
           "| 「椅子左边的距离最近的杯子，右边全排除」 | 第一步按机器人→锚点视线只留指定侧 | 两级同时生效只有 4 条 |",
           "| 「左边有杯子→进第二步；没有→这步作废，全部杯子进第二步」 | 侧池非空用侧池，空则回退全池 | 回退 %d 条 |" % side_empty,
           "| 「第二步有限制选最近/最远」 | 只在题面出现距离词时生效 | 只有 %d 条有距离词 |" % n_word,
@@ -293,7 +293,7 @@ def write_report(tbl, sc, dir_s, fail, side_empty, one, n_dist, n_word):
 
     # 4.1 走完两级的那几条
     comp = sc[sc.Case == "② 方向+距离 两级叠加"]
-    L += ["### 4.1 走完两级的那 4 条（你说的「椅子左边最近的杯子」就是这种）", "",
+    L += ["### 4.1 走完两级的那 4 条（原规则举的「椅子左边最近的杯子」就是这种）", "",
           "| 题面 | 侧池 | 允许集 | 标注命中 | 卡在哪 |", "|---|---:|---:|---|---|"]
     for _, x in comp.iterrows():
         L.append(f"| `{str(x.Instruction)[:64]}` | {x.Side_N} | {x.Allowed_N} | "
@@ -308,7 +308,7 @@ def write_report(tbl, sc, dir_s, fail, side_empty, one, n_dist, n_word):
           "| 容器内方位（left most / back right / top left…） | 28 | `Pick up keys from far right couch cushion` |",
           "| 相对机器人（on your right） | 7 | `Pick up the sponge on your right` |",
           "| 修饰容器或画面（on the edge of the bed / turn right） | 34 | `Turn right and pick up the book that is on the edge of the bed` |", "",
-          "按你「可以没有、但不能相违背」的原则，这三类更接近**未定（有约束但算不出）**，"
+          "按原规则「可以没有、但不能相违背」的原则，这三类更接近**未定（有约束但算不出）**，"
           "而不是「无约束」。若把它们当「无约束」白送 100%，会把 69 条虚假正确算进分母。", "",
           "**建议**：报告主表只用「方向可算」的 %d 条（真筛过 %d 条，%0.1f%%），"
           "D1 单独列为「题面有方位但锚点不可算，不判分」。" % (len(dir_s), len(real), real.Target_In.mean()*100), "",

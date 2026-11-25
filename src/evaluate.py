@@ -340,7 +340,7 @@ def main(no_fig=False):
     for disp, col, note in [
         ("只距离（M0 取最近）", "hit_m0", "方向完全不用"),
         ("只方位（U-COS 集内最靠侧）", "hit_UCOS", "距离完全不用"),
-        ("硬筛 + 最近（M2）", "hit_m2", "你的第一步字面版"),
+        ("硬筛 + 最近（M2）", "hit_m2", "原规则的第一步字面版"),
         ("硬筛 + 软加权（M3a）", "hit_m3a", "硬筛内再软排"),
         ("软加权 w=0.5（M3）", "hit_m35", "方向权重偏高"),
         ("软加权 w=0.2（M3*）", "hit_m3", "去掉硬层的最终软层"),
@@ -714,7 +714,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
         A("| 方法 | 性质 | 命中 | 95% CI |")
         A("|---|---|---:|---|")
         for _, r in tb.iterrows():
-            star = "**" if r.方法.startswith("★") or r.方法.startswith("U-SET") else ""
+            star = "**" if r.方法.startswith("U-SET") else ""
             A(f"| {r.方法} | {r.性质} | {star}{r.命中}%{star} | "
               f"{'' if r.方法.startswith('ORACLE') else f'[{r.lo}, {r.hi}]'} |")
         A("")
@@ -990,7 +990,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
         A("## T12 7B 学习基线（Qwen2.5-7B-Instruct，greedy，A5000 24GB）")
         A("")
         A("三套提示，差别只在「脚手架」多少：`v1` 只给坐标与数字；`v2` 把关系说成人话"
-          "（「在 anchor 左侧 0.56 m、离你 2.2 m」）；`v3` 在 v2 基础上把两步规则明写进提示。")
+          "（「在 anchor 左侧 0.56 m、离机器人 2.2 m」）；`v3` 在 v2 基础上把两步规则明写进提示。")
         A("")
         A("| 模式 | S1 全量 665 | S2 方向可算 596 | S3 真被筛过 515 | 对 M-soft 的 McNemar |")
         A("|---|---:|---:|---:|---|")

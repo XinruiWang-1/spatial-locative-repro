@@ -196,7 +196,7 @@ def summarize(recs, label=""):
     # Tolerant：允许集合口径
     ok = np.array([r["ok"] for r in recs], float)
     lo, hi = boot_ci(ok, seed=1)
-    out.append(dict(方法="★ U-SET 允许集合判定（你的口径）", n=len(recs),
+    out.append(dict(方法="U-SET 允许集合判定（本项目口径）", n=len(recs),
                     命中=round(ok.mean() * 100, 1), lo=round(lo, 1), hi=round(hi, 1),
                     性质="集合", 平均集合=round(np.mean([r["A_n"] for r in recs]), 2)))
 
@@ -398,7 +398,7 @@ def write_report(main_tbl, by_band, by_size, by_free, tests, recs,
         x = t[t.方法.str.startswith(pref)]
         return x.iloc[0] if len(x) else None
 
-    uset, m2, m0 = row("★ "), row("M2"), row("M0")
+    uset, m2, m0 = row("U-SET"), row("M2"), row("M0")
     m3, m3a = row("M3 "), row("M3a")
     urand, rnd, ucos = row("U-RAND"), row("RND"), row("U-COS")
 
@@ -419,16 +419,16 @@ def write_report(main_tbl, by_band, by_size, by_free, tests, recs,
         x = t[0][t[0].方法.str.startswith(mpref)]
         return float(x.命中.iloc[0]) if len(x) else None
 
-    L = ["# 对照组实验：你的办法到底是不是最高", "",
+    L = ["# 对照组实验：本文方法到底是不是最高", "",
          f"> 数据：`clean_spatial_ext.csv` 冻结 v1.0 中 `Scorable==1` 的 **{n}** 条，只读，未改任何数据。",
          "> 所有方法在同一批样本上跑；随机方法用解析期望 + 4000 次 bootstrap 给 95% CI。",
          "> 每个方法统一归约为「它接受的候选集合 S」，单点命中概率 = 1/|S|（标注在 S 内）否则 0。", "",
          "## 0 结论（四句）", "",
-         f"1. **按你的口径（允许集合判定）{uset.命中}%**，这是「严格遵守题面」意义下的上界，"
+         f"1. **按本项目口径（允许集合判定）{uset.命中}%**，这是「严格遵守题面」意义下的上界，"
          "没有任何对照能超过它——它不是选答案，而是划定答案范围。",
          f"2. **但只能输出一个答案时，最高不是硬筛**：软加权（方位权重 0.2）{sw_best}%，"
          f"5 折交叉验证 OOF 也是 {cv_hit:.1f}%（每折都选 0.2，不是事后调参）。",
-         f"3. **你的硬筛 M2 {m2.命中}%，比「取锚点最近」M0 {m0.命中}% 低 {m0.命中-m2.命中:.1f} 点**"
+         f"3. **硬筛 M2 {m2.命中}%，比「取锚点最近」M0 {m0.命中}% 低 {m0.命中-m2.命中:.1f} 点**"
          f"（McNemar p=0.18，不显著）。方向上没错，是数据里有 26% 的标注跟题面反着。",
          f"4. **净效果**：在「标注自洽」的 439 条上硬筛 +{cell(by_label,'标注自洽','M2')-cell(by_label,'标注自洽','M0'):.1f} 点，"
          f"在「标注违反」的 157 条上 −{cell(by_label,'标注违反','M0')-cell(by_label,'标注违反','M2'):.1f} 点，"
@@ -438,11 +438,11 @@ def write_report(main_tbl, by_band, by_size, by_free, tests, recs,
          "|---|---|---:|---|---:|---|"]
     note = {
         "ORACLE": "选标注本身，尺子零点，不是方法",
-        "★ U-SET": "你的口径：标注落在题面允许范围内",
+        "U-SET": "本项目口径：标注落在题面允许范围内",
         "M3*": "扫描选出的最优权重（5 折均选 0.2，OOF 68.6%）",
         "M3 方位": "软加权 w_ori=0.5, w_dist=0.4，不硬筛",
         "M0": "全池取最近锚点（旧基线）",
-        "M2": "方向硬筛 + 侧内最近锚点（你的规则的单点版）",
+        "M2": "方向硬筛 + 侧内最近锚点（原规则的单点版）",
         "M3a": "方向硬筛 + 侧内软加权",
         "U-COS": "允许集内取最靠该侧",
         "U-RAND": "允许集内随机（同规则的落地期望）",
@@ -456,7 +456,7 @@ def write_report(main_tbl, by_band, by_size, by_free, tests, recs,
                  f"[{r['lo']}, {r['hi']}] | {r['平均集合']} | {tag} |")
 
     L += ["", "## 2 两个口径不是一回事，别混用", "",
-          "你的规则「符合题面就任取一个都对」，在判分上等价于**返回允许集合**；",
+          "本方法的规则「符合题面就任取一个都对」，在判分上等价于**返回允许集合**；",
           "真机落地必须选一个，就落到**单点口径**。同一套规则，两种数：", "",
           "| 口径 | 数值 | 含义 |", "|---|---:|---|",
           f"| 允许集合判定 | **{uset.命中}%** | 标注在题面允许范围内；"
@@ -473,7 +473,7 @@ def write_report(main_tbl, by_band, by_size, by_free, tests, recs,
     if by_label:
         for tb in by_label:
             g = tb.分组.iloc[0]
-            L.append(f"| {g} | {tb.n.iloc[0]} | {cell(by_label,g,'★'):.1f}% | "
+            L.append(f"| {g} | {tb.n.iloc[0]} | {cell(by_label,g,'U-SET'):.1f}% | "
                      f"{cell(by_label,g,'M2'):.1f}% | {cell(by_label,g,'M0'):.1f}% | "
                      f"{cell(by_label,g,'M3 '):.1f}% | |")
     a_ok, a_bad = cell(by_label, "标注自洽", "M2"), cell(by_label, "标注违反", "M2")
@@ -503,7 +503,7 @@ def write_report(main_tbl, by_band, by_size, by_free, tests, recs,
           "|---|---:|---:|---:|---:|---:|---:|"]
     for tb in by_band:
         g = tb.分组.iloc[0]
-        L.append(f"| {g} | {tb.n.iloc[0]} | {cell(by_band,g,'★'):.1f}% | {cell(by_band,g,'M2'):.1f}% | "
+        L.append(f"| {g} | {tb.n.iloc[0]} | {cell(by_band,g,'U-SET'):.1f}% | {cell(by_band,g,'M2'):.1f}% | "
                  f"{cell(by_band,g,'M0'):.1f}% | {cell(by_band,g,'M3 '):.1f}% | {cell(by_band,g,'U-RAND'):.1f}% |")
     L += ["", f"D2R（锚点由同场景补齐、标注自洽 93%）上硬筛 **{cell(by_band,'D2R','M2'):.1f}% > 最近 {cell(by_band,'D2R','M0'):.1f}%** —— "
           "方向筛在干净数据上是赢的，这跟第 3 节完全一致。", "",
@@ -512,19 +512,19 @@ def write_report(main_tbl, by_band, by_size, by_free, tests, recs,
           "|---|---:|---:|---:|---:|---:|---:|"]
     for tb in by_size:
         g = tb.分组.iloc[0]
-        L.append(f"| {g.replace('|A|=','')} | {tb.n.iloc[0]} | {cell(by_size,g,'★'):.1f}% | "
+        L.append(f"| {g.replace('|A|=','')} | {tb.n.iloc[0]} | {cell(by_size,g,'U-SET'):.1f}% | "
                  f"{cell(by_size,g,'M2'):.1f}% | {cell(by_size,g,'M0'):.1f}% | "
                  f"{cell(by_size,g,'M3 '):.1f}% | {cell(by_size,g,'U-RAND'):.1f}% |")
     one_n = [x.n.iloc[0] for x in by_size if x.分组.iloc[0] == "|A|=1"][0]
     L += ["", f"**|A|=1 的 {one_n} 条最能说明问题**：题面已经唯一确定答案了，U-SET 只有 "
-          f"{cell(by_size,'|A|=1','★'):.1f}%（这就是标注噪声天花板），"
+          f"{cell(by_size,'|A|=1','U-SET'):.1f}%（这就是标注噪声天花板），"
           f"而「取最近」{cell(by_size,'|A|=1','M0'):.1f}%、软加权 {cell(by_size,'|A|=1','M3 '):.1f}% "
           f"**反而更高**——说明标注者在题面唯一时仍有约 1/4 不按题面选。", "",
           "### 5.3 按方位类型", "",
           "| 类型 | n | U-SET | M2 | M0 | M3 |", "|---|---:|---:|---:|---:|---:|"]
     for tb in (by_rel or []):
         g = tb.分组.iloc[0]
-        L.append(f"| {g} | {tb.n.iloc[0]} | {cell(by_rel,g,'★'):.1f}% | {cell(by_rel,g,'M2'):.1f}% | "
+        L.append(f"| {g} | {tb.n.iloc[0]} | {cell(by_rel,g,'U-SET'):.1f}% | {cell(by_rel,g,'M2'):.1f}% | "
                  f"{cell(by_rel,g,'M0'):.1f}% | {cell(by_rel,g,'M3 '):.1f}% |")
     if by_rel:
         L += ["", f"behind {cell(by_rel,'behind','M2'):.1f}% > 最近 {cell(by_rel,'behind','M0'):.1f}%（硬筛赢）；"
@@ -543,12 +543,12 @@ def write_report(main_tbl, by_band, by_size, by_free, tests, recs,
 
     L += ["", "## 7 那到底「能不能达到最高」", "",
           "**分三层回答：**", "",
-          "| 层面 | 最高是什么 | 你的办法 | 结论 |", "|---|---|---|---|",
+          "| 层面 | 最高是什么 | 本文方法 | 结论 |", "|---|---|---|---|",
           f"| 判分口径（允许集合） | {uset.命中}%（遵守题面的上界） | {uset.命中}% | **它就是上界本身，没有第二种做法能达到** |",
           f"| 单点选择（真机落地） | {sw_best}%（软加权 w=0.2） | {m2.命中}%（硬筛+最近） | 低 {sw_best-m2.命中:.1f} 点，需要把「硬筛」换成「软加权」 |",
           f"| 标注可信子集（439 条） | 单点最高 {max(a_ok, cell(by_label,'标注自洽','M3 ')):.1f}% | {a_ok:.1f}% | 打平，方向筛在干净数据上不吃亏 |", "",
-          "**给你的两条具体建议：**", "",
-          f"1. **判分继续用你的口径**（{uset.命中}%）：它把「题面允许但标注选了别的」和「方法选错」分开了，"
+          "**两条具体建议：**", "",
+          f"1. **判分继续用本项目口径**（{uset.命中}%）：它把「题面允许但标注选了别的」和「方法选错」分开了，"
           "这是这份数据唯一诚实的判法。要报数就报 `{:.1f}%`，同时注明其中 150 条是白送、真筛过 515 条是 85.0%。".format(uset.命中),
           f"2. **如果要把方法落到「选一个」**，把硬筛换成软加权、方位权重从 0.5 降到 **0.2**："
           f"{m2.命中}% → {sw_best}%，比旧基线 M0（{m0.命中}%）高 {sw_best-m0.命中:.1f} 点，且交叉验证稳定。",

@@ -7,7 +7,7 @@ build_dataset_locative.py —— A 方案:从 high_descs 重建"空间定位型"
 【为什么要重建】
 旧的 dataset_gt_all.csv 用整条 task_desc 当指令,问题有两个:
   1. ALFRED 的 task_desc 里 74% 的空间词是"放置目的地"
-     ("put the bread in the fridge" 的 fridge 是终点,不告诉你面包在哪),
+     ("put the bread in the fridge" 的 fridge 是终点,不交代面包在哪),
      这类样本算距离对"找目标"毫无意义;
   2. task_desc 本身很少编码目标位置,真正能验证"空间消歧"的样本
      全量只有 19 条 (0.27%)。
