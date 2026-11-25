@@ -1,5 +1,10 @@
 # Main experiment: two rulers + the proposed single-point selector.
 # All values here are the ones used for the reported numbers; do not tune on test.
+#
+# NOTE: this file is a written record, not a runtime switch. src/scoring.py and
+# src/evaluate.py take no arguments and do not parse YAML. Every value below is the
+# literal used in the code, so changing a number here changes nothing until the
+# matching line in src/ is edited too. See README.md section 5.
 
 data:
   # frozen sample table, sha256 recorded in data/DATA_LOCK.json
@@ -26,6 +31,9 @@ selector:                               # measurement 2: pick exactly one object
 
 evaluation:
   bootstrap_resamples: 4000
+  # Seed of the main-table intervals (src/evaluate.py -> ci(p, seed=0)).
+  # Three further seeds live in src/baselines.py: 1 = U-SET interval,
+  # 2 = single-point methods, 3 = weight-sweep control. See README.md section 5.
   bootstrap_seed: 0
   confidence: 0.95
   paired_test: mcnemar_exact

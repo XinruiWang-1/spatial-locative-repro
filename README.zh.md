@@ -102,7 +102,7 @@ spatial-locative-repro/
 报告中的 7B 数字在课程提供的 RTX A5000（24 GB）上产出，bfloat16，贪心解码，
 batch size 8。
 
-## 5. 软件环境
+## 5. 软件环境与配置
 
 在 Windows 和 Linux 上以 Python 3.15.0 测试通过。
 
@@ -116,6 +116,29 @@ matplotlib==3.11.2
 `requirements-llm.txt` 里的 LLM 依赖只在重跑预测时才需要：
 `torch==2.14.1`、`transformers==5.24.0`、`accelerate==1.11.0`、`bitsandbytes==0.48.0`
 （实测环境为 CUDA 13.0）。
+
+### 配置文件怎么用
+
+`configs/*.yaml` 是对常数的记录，不是运行时开关。所有脚本都不接受 `--config` 参数：
+`src/scoring.py` 和 `src/evaluate.py` 完全不收命令行选项，YAML 里写的值就是
+`src/selection.py` 与 `src/evaluate.py` 里直接使用的字面量。只有一个数据集、一条规则、
+一个超参，不值得再写一层配置加载器；但设置总得有个地方能一次读完，这两个文件就是
+起这个作用。想试别的 `direction_weight`，改 `src/selection.py` 第 41 行的 `W_ORI`，
+再跑 `scripts/run_all.sh`。
+
+随机性只出现在 bootstrap 里，四个种子都写死在源码中：
+
+| 种子 | 位置 | 控制什么的重采样 |
+|---|---|---|
+| 0 | `src/evaluate.py` -> `ci(p, seed=0)` | 主表各方法的置信区间 |
+| 1 | `src/baselines.py` -> `boot_ci(ok, seed=1)` | U-SET 集合口径的区间 |
+| 2 | `src/baselines.py` -> `boot_ci(p, seed=2)` | `summarize()` 里所有单点方法 |
+| 3 | `src/baselines.py` -> `boot_ci(hits, seed=3)` | 权重扫描的对照实验 |
+
+`configs/main.yaml` 只把 0 号记成 `bootstrap_seed`，因为主表报告的区间由它决定。
+其余环节不产生随机数：样本表是冻结的，选择器是确定性的 argmin，7B 用贪心解码
+（`do_sample: false`）。所以在任何机器上跑 `run_all.sh` 都会写出同一份 CSV，没有
+种子需要调。
 
 ## 6. 安装
 
@@ -257,3 +280,34 @@ bash scripts/run_all.sh             # 把预测并进 T1 和 T12
 ## 16. 许可
 
 代码与派生表格采用 MIT。ALFRED 的原始发布与图像不在本仓库中再分发。
+
+## 17. 复现自检
+
+评分表要的是能把这条链走通：仓库、环境、数据、配置、推理、评测、报告的结果。每一环
+在哪里：
+
+| 问题 | 答案 |
+|---|---|
+| 完整源码在哪？ | `src/`，12 个模块各管一件事，清单见第 3 节 |
+| 环境怎么装？ | 第 6 节：`pip install -r requirements.txt`，四个版本都锁死 |
+| 数据从哪来？ | 第 7 节与 `data/README.md`：ALFRED，CVPR 2020，MIT，官方来源；不需要下载 |
+| 数据怎么准备？ | `data/README.md`：665 条可评分样本是怎么切出来的；重建脚本可选 |
+| 哪份配置复现主实验？ | 第 5 节：`configs/main.yaml` 记录了 `W_ORI = 0.2`；脚本没有选项开关 |
+| 模型怎么训练？ | 第 9 节：没有训练步骤；唯一超参由 5 折扫描得出 |
+| 模型怎么评测？ | 第 10 节：`bash scripts/run_all.sh`，CPU 上约 10 秒 |
+| 指标存在哪？ | `results/paper_T*.csv`，一表一文件，另有 `paper_detail.csv` 逐样本 |
+| 和论文对得上吗？ | 第 11 节给出 `paper_T1_main.csv` 里要核对的五个值 |
+| 必须要 A5000 吗？ | 不需要。只有重跑 7B 预测才要，那批预测已经提交 |
+
+没有 GPU 的机器上，从克隆到出数就这一段：
+
+```bash
+git clone https://github.com/<your-username>/spatial-locative-repro.git
+cd spatial-locative-repro
+pip install -r requirements.txt
+bash scripts/run_all.sh
+cat results/paper_T1_main.csv
+```
+
+第 4 步不报错、第 5 步在 S1 上看到 `U-SET` 88.4 与 `M-soft` 68.4，这次提交就是端到端
+可复现的。

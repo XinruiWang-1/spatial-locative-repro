@@ -112,7 +112,7 @@ spatial-locative-repro/
 The reported 7B numbers were produced on the course-provided RTX A5000 (24 GB), in
 bfloat16, with greedy decoding and batch size 8.
 
-## 5. Software
+## 5. Software and configuration
 
 Tested with Python 3.15.0 on Windows and Linux.
 
@@ -126,6 +126,31 @@ matplotlib==3.11.2
 The LLM stack in `requirements-llm.txt` is only needed to regenerate the predictions:
 `torch==2.14.1`, `transformers==5.24.0`, `accelerate==1.11.0`, `bitsandbytes==0.48.0`
 (CUDA 13.0 in the reported run).
+
+### How the configuration files are used
+
+`configs/*.yaml` record the constants; they are not a runtime switch. No script accepts a
+`--config` argument: `src/scoring.py` and `src/evaluate.py` take no options at all, and
+the values written in the YAML are the literals used in `src/selection.py` and
+`src/evaluate.py`. One dataset, one rule and one hyper-parameter do not justify a config
+loader, but the settings still need to be readable in one place, which is what the two
+files are for. If you want to try a different `direction_weight`, edit `W_ORI` in
+`src/selection.py` line 41 and re-run `scripts/run_all.sh`.
+
+Randomness is confined to the bootstrap. All four seeds are fixed in the source:
+
+| Seed | Location | What it resamples |
+|---|---|---|
+| 0 | `src/evaluate.py` -> `ci(p, seed=0)` | confidence intervals of the main table |
+| 1 | `src/baselines.py` -> `boot_ci(ok, seed=1)` | the U-SET set-ruler interval |
+| 2 | `src/baselines.py` -> `boot_ci(p, seed=2)` | every single-point method inside `summarize()` |
+| 3 | `src/baselines.py` -> `boot_ci(hits, seed=3)` | the weight-sweep control experiment |
+
+`configs/main.yaml` names seed 0 as `bootstrap_seed` because that is the one behind the
+intervals reported for the main table. Nothing else in the pipeline draws a random
+number: the table is frozen, the selector is a deterministic argmin, and the 7B run is
+greedy (`do_sample: false`). `run_all.sh` therefore writes the same CSV on any machine,
+and there is no seed to tune.
 
 ## 6. Installation
 
@@ -282,3 +307,34 @@ design the method and did not produce any number. See [`AI_DISCLOSURE.md`](AI_DI
 
 MIT for the code and the derived tables. The ALFRED raw release and images are not
 redistributed here.
+
+## 17. Reproduction checklist
+
+The rubric asks whether a reader can follow one chain: repository, environment, data,
+configuration, inference, evaluation, reported result. Each link and where to find it:
+
+| Question | Answer |
+|---|---|
+| Where is the complete source code? | `src/`, 12 modules with one job each, listed in §3 |
+| How is the environment installed? | §6: `pip install -r requirements.txt`, four pinned versions |
+| Where does the dataset come from? | §7 and `data/README.md`: ALFRED, CVPR 2020, MIT, official source; nothing to download |
+| How is the data prepared? | `data/README.md`: how the 665 scorable samples were cut; rebuild scripts optional |
+| Which configuration reproduces the main experiment? | §5: `configs/main.yaml` records `W_ORI = 0.2`; no script takes a flag |
+| How is the model trained? | §9: no training step; the one hyper-parameter comes from a 5-fold sweep |
+| How is the model evaluated? | §10: `bash scripts/run_all.sh`, about 10 s on CPU |
+| Where are the metrics stored? | `results/paper_T*.csv`, one file per table, plus `paper_detail.csv` per sample |
+| Do they match the paper? | §11 gives the five values to compare in `paper_T1_main.csv` |
+| Is the A5000 required? | No. Only regenerating the 7B predictions needs it; they are committed |
+
+The whole chain, on a machine with no GPU:
+
+```bash
+git clone https://github.com/<your-username>/spatial-locative-repro.git
+cd spatial-locative-repro
+pip install -r requirements.txt
+bash scripts/run_all.sh
+cat results/paper_T1_main.csv
+```
+
+If step 4 ends without an error and step 5 shows `U-SET` at 88.4 and `M-soft` at 68.4 on
+S1, the submission reproduces end to end.
