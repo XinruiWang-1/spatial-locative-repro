@@ -67,7 +67,7 @@ spatial-locative-repro/
 ├── README.md                  this file
 ├── README.zh.md               Chinese translation of this file
 ├── requirements.txt           core dependencies (CPU)
-├── requirements-llm.txt       optional, only for re-running the 7B baseline
+├── requirements-llm.txt       only needed to re-run 7B inference (GPU)
 ├── LICENSE                    MIT (our code) + attribution of third-party assets
 ├── AI_DISCLOSURE.md           what an AI assistant helped with
 ├── AI_DISCLOSURE.zh.md        Chinese translation
@@ -91,7 +91,7 @@ spatial-locative-repro/
 │   ├── build_anchors.py       anchor extraction (optional)
 │   ├── extend_dataset.py      adds bands D0/D1/D2/D2R (optional)
 │   ├── audit_data.py          final consistency audit (optional)
-│   ├── inference_llm.py       7B inference, HF backend (optional, GPU)
+│   ├── inference_llm.py       7B inference, HF backend (GPU; predictions included)
 │   └── synonyms.py           33-entry synonym table (single source of truth)
 ├── scripts/
 │   ├── run_all.sh             the main experiment, end to end
@@ -122,7 +122,7 @@ scikit-learn==1.9.1
 matplotlib==3.11.2
 ```
 
-The optional LLM stack (`requirements-llm.txt`) is
+The LLM stack (`requirements-llm.txt`) is only needed to regenerate the predictions:
 `torch==2.14.1`, `transformers==5.24.0`, `accelerate==1.11.0`, `bitsandbytes==0.48.0`
 (CUDA 13.0 in the reported run).
 
@@ -218,7 +218,13 @@ After `bash scripts/run_all.sh`, `results/paper_T1_main.csv` must contain:
 If any of these differs, the frozen data was modified — check it with the sha256
 snippet in `data/README.md`.
 
-## 12. Re-running the 7B baseline (optional)
+## 12. The 7B baseline: results, and re-running it
+
+**The 7B numbers are final and already in the tables** — row `LLM 7B · v2` of
+`paper_T1_main.csv` and the four diagnostics in `paper_T12a–d`: Qwen2.5-7B-Instruct,
+1,995 greedy generations (665 samples × 3 prompt variants) on one A5000. Nothing in
+this section is needed to reproduce the reported results; it only regenerates the
+predictions.
 
 ```bash
 pip install -r requirements-llm.txt

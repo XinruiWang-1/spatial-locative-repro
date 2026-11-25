@@ -47,7 +47,7 @@ bash scripts/run_all.sh
 spatial-locative-repro/
 ├── README.md                  英文说明（本页是中文版 README.zh.md）
 ├── requirements.txt           核心依赖（CPU）
-├── requirements-llm.txt       可选，只有重跑 7B 才需要
+├── requirements-llm.txt       只有重跑 7B 推理才需要（GPU）
 ├── LICENSE                    MIT（我们的代码）+ 第三方资产归属
 ├── AI_DISCLOSURE.md           AI 助手参与的部分
 ├── configs/
@@ -70,7 +70,7 @@ spatial-locative-repro/
 │   ├── build_anchors.py       锚点提取（可选）
 │   ├── extend_dataset.py      补上 D0/D1/D2/D2R 分层（可选）
 │   ├── audit_data.py          最终一致性审计（可选）
-│   ├── inference_llm.py       7B 推理，HF 后端（可选，需 GPU）
+│   ├── inference_llm.py       7B 推理，HF 后端（需 GPU；预测结果已附）
 │   └── synonyms.py            33 条同义词表（单一真源）
 ├── scripts/
 │   ├── run_all.sh             主实验，一条命令跑到底
@@ -100,7 +100,7 @@ scikit-learn==1.9.1
 matplotlib==3.11.2
 ```
 
-可选的 LLM 依赖（`requirements-llm.txt`）为
+LLM 依赖（`requirements-llm.txt`）只在重跑预测时才需要：
 `torch==2.14.1`、`transformers==5.24.0`、`accelerate==1.11.0`、`bitsandbytes==0.48.0`
 （实测环境为 CUDA 13.0）。
 
@@ -182,7 +182,11 @@ python src/evaluate.py --no-fig    # 跳过画图
 
 只要有任何一个对不上，说明冻结数据被改过——用 `data/README.md` 里的 sha256 片段核对。
 
-## 12. 重跑 7B 基线（可选）
+## 12. 7B 基线：结果与重跑方式
+
+**7B 的数字已经跑完并写进表里**——`paper_T1_main.csv` 的 `LLM 7B · v2` 行，以及
+`paper_T12a–d` 四张诊断表：Qwen2.5-7B-Instruct，A5000 上 1,995 条贪心生成（665 条 × 3 套
+提示）。本节不是复现结果所必需的，只是重跑预测时才用。
 
 ```bash
 pip install -r requirements-llm.txt
