@@ -14,7 +14,7 @@
 ## AI 助手没有做什么
 
 * 没有设计方法、没有选择基线、没有决定要跑哪些实验。
-* 没有产出、修改或"修"过任何一个报告数字。`results/` 里的每个数都由 `src/scoring.py` 和 `src/evaluate.py` 从冻结数据算出，可用 `bash scripts/run_all.sh` 重跑。
+* 没有产出、修改或润色过任何一个报告数字。`results/` 里的每个数都由 `src/scoring.py` 和 `src/evaluate.py` 从冻结数据算出，可用 `bash scripts/run_all.sh` 重跑。
 * 没有标注数据。标签是 ALFRED 的原始标注。
 
 ## 作者本人做过的验证
