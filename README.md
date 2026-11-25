@@ -1,5 +1,7 @@
 # Spatial Locative Reference Resolution on ALFRED
 
+**English** | [中文版](README.zh.md)
+
 Reproducibility package for the course project **"How much does a spatial description
 actually constrain? Two rulers for grounded instruction following."**
 
@@ -63,10 +65,12 @@ Three findings:
 ```
 spatial-locative-repro/
 ├── README.md                  this file
+├── README.zh.md               Chinese translation of this file
 ├── requirements.txt           core dependencies (CPU)
 ├── requirements-llm.txt       optional, only for re-running the 7B baseline
 ├── LICENSE                    MIT (our code) + attribution of third-party assets
 ├── AI_DISCLOSURE.md           what an AI assistant helped with
+├── AI_DISCLOSURE.zh.md        Chinese translation
 ├── configs/
 │   ├── main.yaml              weights, subsets, bootstrap settings
 │   └── llm_7b.yaml            model, decoding, prompts, hardware
@@ -263,7 +267,8 @@ Third-party assets, all attributed in `LICENSE`:
 ## 15. AI use
 
 An AI coding assistant was used for refactoring, documentation and debugging; it did
-not design the method or produce any number. See [`AI_DISCLOSURE.md`](AI_DISCLOSURE.md).
+not design the method or produce any number. See [`AI_DISCLOSURE.md`](AI_DISCLOSURE.md)
+(Chinese: [`AI_DISCLOSURE.zh.md`](AI_DISCLOSURE.zh.md)).
 
 ## 16. License
 
