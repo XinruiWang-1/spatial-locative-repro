@@ -145,7 +145,7 @@ matplotlib==3.11.2
 ## 6. 安装
 
 ```bash
-git clone https://github.com/<your-username>/spatial-locative-repro.git
+git clone https://github.com/XinruiWang-1/spatial-locative-repro.git
 cd spatial-locative-repro
 python -m venv .venv && source .venv/bin/activate    # Windows 用 .venv\Scripts\activate
 pip install -r requirements.txt
@@ -304,7 +304,7 @@ bash scripts/run_all.sh             # 把预测并进 T1 和 T12
 没有 GPU 的机器上，从克隆到出数就这一段：
 
 ```bash
-git clone https://github.com/<your-username>/spatial-locative-repro.git
+git clone https://github.com/XinruiWang-1/spatial-locative-repro.git
 cd spatial-locative-repro
 pip install -r requirements.txt
 bash scripts/run_all.sh

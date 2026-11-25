@@ -158,7 +158,7 @@ and there is no seed to tune.
 ## 6. Installation
 
 ```bash
-git clone https://github.com/<your-username>/spatial-locative-repro.git
+git clone https://github.com/XinruiWang-1/spatial-locative-repro.git
 cd spatial-locative-repro
 python -m venv .venv && source .venv/bin/activate    # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -333,7 +333,7 @@ configuration, inference, evaluation, reported result. Each link and where to fi
 The whole chain, on a machine with no GPU:
 
 ```bash
-git clone https://github.com/<your-username>/spatial-locative-repro.git
+git clone https://github.com/XinruiWang-1/spatial-locative-repro.git
 cd spatial-locative-repro
 pip install -r requirements.txt
 bash scripts/run_all.sh
