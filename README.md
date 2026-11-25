@@ -188,7 +188,7 @@ table-by-table report, in the author's working language, Chinese).
 
 | File | Content |
 |---|---|
-| `paper_T1_main.csv` | the main table: 3 subsets × 17 methods |
+| `paper_T1_main.csv` | the main table: 3 subsets × 19 methods |
 | `paper_T2/T3/T4` | difficulty bands, relation types, allowed-set size |
 | `paper_T5_audit.csv` | annotation audit: 439 self-consistent vs 157 contradictory |
 | `paper_T6_ruler.csv`, `paper_T6b_quadrant.csv` | the two rulers and the 2×2 bridge between them |

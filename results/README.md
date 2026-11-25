@@ -9,7 +9,7 @@ committed so that the LLM row reproduces without a GPU.
 
 | File | Paper element |
 |---|---|
-| `paper_T1_main.csv` | main table: 3 subsets × 17 methods |
+| `paper_T1_main.csv` | main table: 3 subsets × 19 methods |
 | `paper_T2_band.csv` | accuracy by difficulty band (pool size / allowed-set size) |
 | `paper_T3_rel.csv` | accuracy by relation type (*left/right*, *front/behind*, …) |
 | `paper_T4_pool.csv` | accuracy by allowed-set size 1–4 (kills the "noise ceiling" claim) |
