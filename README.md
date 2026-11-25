@@ -2,16 +2,16 @@
 
 **English** | [中文版](README.zh.md)
 
-Reproducibility package for the course project **"How much does a spatial description
-actually constrain? Two rulers for grounded instruction following."**
+Reproducibility package for the course project "How much does a spatial description
+actually constrain? Two rulers for grounded instruction following".
 
-Given an instruction such as *"Pick up the pen that is on the left side of the
-dresser"* and a scene with 2–7 interchangeable pens, the task is to decide **which pen**
-the instruction refers to. This repository contains the frozen sample table, the
-geometry-based reference implementation, every baseline, the 7B learning baseline, and
-the scripts that regenerate all reported tables and figures.
+The task: given an instruction such as *"Pick up the pen that is on the left side of the
+dresser"* in a scene with 2 to 7 interchangeable pens, decide which pen the instruction
+refers to. The repository holds the frozen sample table, the geometry reference
+implementation, all baselines, the 7B baseline, and the scripts that regenerate every
+table and figure.
 
-**Reproduce everything in two commands (CPU only, ~10 s):**
+Two commands reproduce everything (CPU only, about 10 s):
 
 ```bash
 pip install -r requirements.txt
@@ -22,40 +22,40 @@ bash scripts/run_all.sh
 
 ## 1. Research question
 
-Spatial locative expressions ("the cup to the left of the sink") are usually evaluated
-as a single accuracy number. That conflates two different questions:
+Spatial locative expressions ("the cup to the left of the sink") are usually reported as
+one accuracy number. That number mixes two different questions:
 
-1. **Does the description constrain the scene at all?** — i.e. is the human annotation
-   even inside the region the words describe?
-2. **Can a method pick exactly one object?** — because a robot has to grasp one cup.
+1. Does the description constrain the scene at all? That is, is the human annotation
+   inside the region the words describe?
+2. Can a method pick exactly one object? A robot has to grasp one cup.
 
-We measure (1) with a set-valued ruler (**U-SET**) and (2) with a single-point selector
-(`M-soft`), and show that the gap between them is a property of the *data*, not a
-failure of the method.
+We measure (1) with a set-valued ruler (U-SET) and (2) with a single-point selector
+(`M-soft`). The gap between the two comes from the data, not from a failure of the
+method.
 
 ## 2. Reported results
 
-665 scorable samples, 2.8 candidates on average, all differences are paired
-(McNemar exact test, 4,000 bootstrap resamples for CIs).
+665 scorable samples, 2.8 candidates on average. All comparisons are paired (McNemar
+exact test, 4,000 bootstrap resamples for confidence intervals).
 
-| Subset | n | U-SET (set ruler) | **M-soft** (ours) | M2 hard filter | M0 nearest | 7B (best prompt) | random in pool |
+| Subset | n | U-SET (set ruler) | M-soft (ours) | M2 hard filter | M0 nearest | 7B (best prompt) | random in pool |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | S1 all scorable | 665 | **88.4%** | **68.4%** | 62.7% | 64.8% | 57.4% | 38.3% |
 | S2 direction computable | 596 | 87.1% | **72.5%** | 66.1% | 68.5% | 61.1% | — |
 | S3 only truly filtered | 515 | 85.0% | **72.8%** | 65.4% | 68.3% | 61.6% | — |
 
-Three findings:
+Three findings.
 
-1. **Direction must be a prior, not a veto.** Hard-filtering the "wrong" side drops
-   accuracy from 68.4% to 62.7% (p < 0.0001) because **157 of 665** human annotations
-   sit on the side opposite to the words.
-2. **The distance rule is hardly ever tested.** "Take the nearest" fires on **4 of 665**
-   samples (0.6%); ALFRED annotators almost never write "nearest". Distance is our
-   geometric prior, not a linguistic constraint.
-3. **A 7B LLM keeps the direction but cannot rank inside it.** Qwen2.5-7B-Instruct picks
-   an object inside the allowed half-plane **98.6%** of the time (higher than the
-   annotations' own 88.4%), yet reaches only 57.4% overall — worse than a one-line
-   "nearest" rule. Three prompt variants do not differ significantly (p = 0.22, p = 0.68).
+1. Direction should stay a soft prior. Hard-filtering the wrong side drops accuracy from
+   68.4% to 62.7% (p < 0.0001), because 157 of the 665 human annotations sit on the side
+   opposite to the words.
+2. The distance rule is almost never tested. "Take the nearest" fires on 4 of 665
+   samples (0.6%), since ALFRED annotators almost never write "nearest". Distance is a
+   geometric prior we chose, not a constraint carried by the sentence.
+3. A 7B LLM keeps the direction but cannot rank inside it. Qwen2.5-7B-Instruct picks an
+   object in the allowed half-plane 98.6% of the time, higher than the annotations' own
+   88.4%, yet reaches only 57.4% overall and loses to a one-line "nearest" rule. Three
+   prompt variants do not differ significantly (p = 0.22 and p = 0.68).
 
 ![Main subsets](figures/paper_fig1_subsets.png)
 ![7B baseline](figures/paper_fig5_llm.png)
@@ -71,7 +71,7 @@ spatial-locative-repro/
 ├── LICENSE                    MIT (our code) + attribution of third-party assets
 ├── AI_DISCLOSURE.md           what an AI assistant helped with
 ├── AI_DISCLOSURE.zh.md        Chinese translation
-├── docs/                       the same README and disclosure as Word files
+├── docs/                      the same README and disclosure as Word files
 ├── configs/
 │   ├── main.yaml              weights, subsets, bootstrap settings
 │   └── llm_7b.yaml            model, decoding, prompts, hardware
@@ -79,21 +79,21 @@ spatial-locative-repro/
 │   ├── README.md              provenance, band construction, integrity check
 │   ├── clean_spatial_ext.csv  frozen samples (1,392 rows, 665 scorable)
 │   ├── DATA_LOCK.json         sha256 of every frozen asset
-│   ├── llm_prompts.jsonl      665 samples × 3 prompt variants
+│   ├── llm_prompts.jsonl      665 samples x 3 prompt variants
 │   └── derived/               loc_candidates.json.gz, loc_anchors.json.gz
 ├── src/
 │   ├── _paths.py              all path resolution (no absolute paths anywhere)
-│   ├── scoring.py             geometry + cascade scoring  → results/cascade_detail.csv
-│   ├── evaluate.py            tables T1–T12 + 5 figures   → results/, figures/
+│   ├── scoring.py             geometry and cascade scoring -> results/cascade_detail.csv
+│   ├── evaluate.py            tables T1-T12 and 5 figures -> results/, figures/
 │   ├── selection.py           the proposed selector (soft prior w=0.2 + distance layer)
-│   ├── baselines.py           control suite + weight sweep + cross-validation
+│   ├── baselines.py           control suite, weight sweep, cross-validation
 │   ├── text_baseline.py       TF-IDF text baseline and its tokeniser/synonyms
 │   ├── build_dataset.py       data prep from the raw ALFRED release (optional)
 │   ├── build_anchors.py       anchor extraction (optional)
 │   ├── extend_dataset.py      adds bands D0/D1/D2/D2R (optional)
 │   ├── audit_data.py          final consistency audit (optional)
 │   ├── inference_llm.py       7B inference, HF backend (GPU; predictions included)
-│   └── synonyms.py           33-entry synonym table (single source of truth)
+│   └── synonyms.py            33-entry synonym table (single source of truth)
 ├── scripts/
 │   ├── run_all.sh             the main experiment, end to end
 │   └── run_llm_7b.sh          the 7B baseline
@@ -105,12 +105,12 @@ spatial-locative-repro/
 
 | Component | Requirement |
 |---|---|
-| Main experiment (`scripts/run_all.sh`) | any CPU, < 1 GB RAM, ~10 s |
-| 7B baseline (`scripts/run_llm_7b.sh`) | 1 × NVIDIA RTX A5000 (24 GB), ~15.2 GB peak |
-| Disk | ~10 MB for the repo, ~36 GB if you also download the raw ALFRED release |
+| Main experiment (`scripts/run_all.sh`) | any CPU, < 1 GB RAM, about 10 s |
+| 7B baseline (`scripts/run_llm_7b.sh`) | 1 x NVIDIA RTX A5000 (24 GB), about 15.2 GB peak |
+| Disk | about 10 MB for the repo, about 36 GB if you also download the raw ALFRED release |
 
-The reported 7B numbers were produced on the course-provided **RTX A5000 (24 GB)**,
-`bfloat16`, greedy decoding, batch size 8.
+The reported 7B numbers were produced on the course-provided RTX A5000 (24 GB), in
+bfloat16, with greedy decoding and batch size 8.
 
 ## 5. Software
 
@@ -123,7 +123,7 @@ scikit-learn==1.9.1
 matplotlib==3.11.2
 ```
 
-The LLM stack (`requirements-llm.txt`) is only needed to regenerate the predictions:
+The LLM stack in `requirements-llm.txt` is only needed to regenerate the predictions:
 `torch==2.14.1`, `transformers==5.24.0`, `accelerate==1.11.0`, `bitsandbytes==0.48.0`
 (CUDA 13.0 in the reported run).
 
@@ -138,15 +138,15 @@ pip install -r requirements.txt
 
 ## 7. Dataset
 
-All experiments use a **derived** subset of **ALFRED** (Shridhar et al., CVPR 2020,
-MIT License, https://github.com/askforalfred/alfred). The frozen sample table is
-included, so no download is required to reproduce the paper; the 36 GB raw release is
-only needed to rebuild the table from scratch.
+All experiments use a derived subset of ALFRED (Shridhar et al., CVPR 2020, MIT License,
+https://github.com/askforalfred/alfred). The frozen sample table ships with this
+repository, so reproducing the paper needs no download. The 36 GB raw release is only
+needed if you want to rebuild the table from scratch.
 
-Details — band construction, geometry definitions, integrity hashes, regeneration
-commands — are in [`data/README.md`](data/README.md). Summary:
+Band construction, geometry definitions, integrity hashes and regeneration commands are
+documented in [`data/README.md`](data/README.md). Summary:
 
-* 1,392 rows, of which `Scorable == 1` gives **665** samples.
+* 1,392 rows in total; `Scorable == 1` leaves **665** samples.
 * 523 exact object anchors, 73 scene-level anchors, 69 with no anchor (text fallback).
 * Excluded: 225 single-candidate pools (nothing to choose) and 502 samples whose anchor
   is absent from the scene graph.
@@ -165,43 +165,44 @@ pick  = argmin(score)                                  # ties -> higher side sco
 # the distance layer becomes a hard filter only when the instruction says "nearest"
 ```
 
-`src/selection.py` implements this; `configs/main.yaml` records the constants.
+The implementation is `src/selection.py`; the constants are recorded in
+`configs/main.yaml`.
 
 ## 9. Training
 
-**There is no training step.** The proposed method is a deterministic scoring function
-with one hyper-parameter (`direction_weight = 0.2`), selected on a 5-fold
-out-of-fold sweep in `src/baselines.py`; the same value is optimal in every fold. The
-7B model is used zero-shot — no fine-tuning, no adapter.
+There is no training step. The method is a deterministic scoring function with one
+hyper-parameter, `direction_weight = 0.2`, chosen by a 5-fold out-of-fold sweep in
+`src/baselines.py`. The same value is best in every fold. The 7B model is used zero-shot,
+with no fine-tuning and no adapter.
 
-We state this explicitly rather than shipping a placeholder `train.py`: the contribution
-is a measurement protocol plus a rule, and any trained component would be a different
-claim.
+The repository does not ship a `train.py`. A placeholder would suggest a trained
+component that does not exist. The contribution here is a measurement protocol and a
+rule; a trained component would be a different claim.
 
 ## 10. Evaluation
 
 ```bash
 bash scripts/run_all.sh
 # or, step by step
-python src/scoring.py      # cascade scoring  -> results/cascade_detail.csv
-python src/evaluate.py     # all tables + 5 figures
+python src/scoring.py      # cascade scoring -> results/cascade_detail.csv
+python src/evaluate.py     # all tables and 5 figures
 python src/evaluate.py --no-fig    # skip plotting
 ```
 
-`src/evaluate.py` writes one CSV per table plus `results/PAPER_EXPERIMENTS.md` (the full
-table-by-table report, in the author's working language, Chinese).
+`src/evaluate.py` writes one CSV per table and also `results/PAPER_EXPERIMENTS.md`, the
+full table-by-table report in Chinese.
 
 | File | Content |
 |---|---|
-| `paper_T1_main.csv` | the main table: 3 subsets × 19 methods |
+| `paper_T1_main.csv` | the main table: 3 subsets x 19 methods |
 | `paper_T2/T3/T4` | difficulty bands, relation types, allowed-set size |
 | `paper_T5_audit.csv` | annotation audit: 439 self-consistent vs 157 contradictory |
-| `paper_T6_ruler.csv`, `paper_T6b_quadrant.csv` | the two rulers and the 2×2 bridge between them |
+| `paper_T6_ruler.csv`, `paper_T6b_quadrant.csv` | the two rulers and the 2x2 bridge between them |
 | `paper_T7_ablation.csv` | soft prior vs hard filter vs no direction layer |
-| `paper_T8/T8b` | evolution of the pipeline; two-stage (category × instance) decomposition |
+| `paper_T8/T8b` | evolution of the pipeline; two-stage (category x instance) decomposition |
 | `paper_T9_failures.csv` | where the remaining errors come from |
 | `paper_T10/T11` | weight sweep; paired significance tests |
-| `paper_T12a–d` | 7B baseline: tests, behaviour diagnosis, strata, position bias |
+| `paper_T12a-d` | 7B baseline: tests, behaviour diagnosis, strata, position bias |
 | `paper_detail.csv` | per-sample trace for all 665 samples |
 
 ## 11. Expected results
@@ -216,16 +217,16 @@ After `bash scripts/run_all.sh`, `results/paper_T1_main.csv` must contain:
 | M0 nearest | 64.8 | 68.5 | 68.3 |
 | LLM 7B · v2 | 57.4 | 61.1 | 61.6 |
 
-If any of these differs, the frozen data was modified — check it with the sha256
-snippet in `data/README.md`.
+If any value differs, the frozen data was modified. Check it against the sha256 snippet
+in `data/README.md`.
 
-## 12. The 7B baseline: results, and re-running it
+## 12. The 7B baseline
 
-**The 7B numbers are final and already in the tables** — row `LLM 7B · v2` of
-`paper_T1_main.csv` and the four diagnostics in `paper_T12a–d`: Qwen2.5-7B-Instruct,
-1,995 greedy generations (665 samples × 3 prompt variants) on one A5000. Nothing in
-this section is needed to reproduce the reported results; it only regenerates the
-predictions.
+The 7B numbers are final and already in the tables: row `LLM 7B · v2` of
+`paper_T1_main.csv`, plus the four diagnostics in `paper_T12a-d`. That is
+Qwen2.5-7B-Instruct with 1,995 greedy generations (665 samples times 3 prompt variants)
+on one A5000. Nothing in this section is needed to reproduce the reported results; it
+only regenerates the predictions.
 
 ```bash
 pip install -r requirements-llm.txt
@@ -234,22 +235,22 @@ bash scripts/run_all.sh             # merges the predictions into T1 and T12
 ```
 
 * Model: `Qwen/Qwen2.5-7B-Instruct` (Apache-2.0), 15.2 GB in bf16.
-* Predictions from the reported run are already committed, so **the tables reproduce
-  without a GPU**; only re-generating them needs the A5000.
-* Three prompt variants: raw numbers, verbalised relations, verbalised + explicit
+* The predictions from the reported run are committed, so the tables reproduce without a
+  GPU. Only regenerating them needs the A5000.
+* Three prompt variants: raw numbers, verbalised relations, verbalised plus an explicit
   two-step rule.
 
 ## 13. Limitations
 
 * One dataset (ALFRED) and one LLM (Qwen2.5-7B, single greedy run, no CoT, no
-  self-consistency). The LLM result is a negative baseline for *this* model, not a
-  claim about LLMs in general.
-* 68.4% is a **given-category** number: it does not solve "is the object a pen".
-  End-to-end (text predicts the category, geometry picks the instance) is 38.9%.
-* No closed-loop rollout in AI2-THOR; the metric is "chose the right object", not task
-  success.
-* Method names in the CSV files are Chinese (the author's working language); see the
-  mapping in `results/README.md`.
+  self-consistency). The LLM result is a negative baseline for this model, not a claim
+  about LLMs in general.
+* 68.4% is a given-category number. It does not answer "is the object a pen". End to end,
+  where text predicts the category and geometry picks the instance, is 38.9%.
+* There is no closed-loop rollout in AI2-THOR. The metric is "chose the right object",
+  not task success.
+* Method names in the CSV files are Chinese, the author's working language. The mapping
+  is in `results/README.md`.
 
 ## 14. Citation and attribution
 
@@ -267,17 +268,17 @@ If you use this code or the derived tables:
 
 Third-party assets, all attributed in `LICENSE`:
 
-* **ALFRED** — Shridhar et al., CVPR 2020, MIT License.
-* **Qwen2.5-7B-Instruct** — Apache-2.0.
-* scikit-learn, pandas, numpy, matplotlib — used as libraries, no code copied.
+* ALFRED: Shridhar et al., CVPR 2020, MIT License.
+* Qwen2.5-7B-Instruct: Apache-2.0.
+* scikit-learn, pandas, numpy, matplotlib: used as libraries, no code copied.
 
 ## 15. AI use
 
-An AI coding assistant was used for refactoring, documentation and debugging; it did
-not design the method or produce any number. See [`AI_DISCLOSURE.md`](AI_DISCLOSURE.md)
+An AI coding assistant was used for refactoring, documentation and debugging. It did not
+design the method and did not produce any number. See [`AI_DISCLOSURE.md`](AI_DISCLOSURE.md)
 (Chinese: [`AI_DISCLOSURE.zh.md`](AI_DISCLOSURE.zh.md)).
 
 ## 16. License
 
-MIT for the code and the derived tables. The ALFRED raw release and images are **not**
+MIT for the code and the derived tables. The ALFRED raw release and images are not
 redistributed here.
