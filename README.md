@@ -71,6 +71,7 @@ spatial-locative-repro/
 ├── LICENSE                    MIT (our code) + attribution of third-party assets
 ├── AI_DISCLOSURE.md           what an AI assistant helped with
 ├── AI_DISCLOSURE.zh.md        Chinese translation
+├── docs/                       the same README and disclosure as Word files
 ├── configs/
 │   ├── main.yaml              weights, subsets, bootstrap settings
 │   └── llm_7b.yaml            model, decoding, prompts, hardware

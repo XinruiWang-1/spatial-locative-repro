@@ -50,6 +50,7 @@ spatial-locative-repro/
 ├── requirements-llm.txt       只有重跑 7B 推理才需要（GPU）
 ├── LICENSE                    MIT（我们的代码）+ 第三方资产归属
 ├── AI_DISCLOSURE.md           AI 助手参与的部分
+├── docs/                      同样内容的 Word 版（README、AI 声明）
 ├── configs/
 │   ├── main.yaml              权重、子集定义、bootstrap 设置
 │   └── llm_7b.yaml            模型、解码参数、提示、硬件
