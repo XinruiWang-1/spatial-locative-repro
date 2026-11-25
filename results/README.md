@@ -22,7 +22,7 @@ committed so that the LLM row reproduces without a GPU.
 | `paper_T9_failures.csv` | attribution of the remaining errors |
 | `paper_T10_sweep.csv` | direction-weight sweep |
 | `paper_T11_tests.csv` | paired McNemar tests against every baseline |
-| `paper_T12a_llm_tests.csv` | 7B: paired tests vs M\*\*, M2, M0 and across prompts |
+| `paper_T12a_llm_tests.csv` | 7B: paired tests vs M-soft, M2, M0 and across prompts |
 | `paper_T12b_llm_behaviour.csv` | 7B: in-allowed-set rate, agreement with "nearest", position bias |
 | `paper_T12c_llm_strata.csv` | 7B: accuracy by stratum |
 | `paper_T12d_llm_position.csv` | 7B: answer distribution over option slots A–D |
@@ -41,7 +41,7 @@ The tables keep the method names used during development. If you are reading
 |---|---|
 | `ORACLE 直接取标注` | upper bound — return the human annotation (not a method) |
 | `U-SET 允许集合判定（口径）` | **set ruler**: is the annotation inside the region the words describe |
-| `★ M** 软先验 0.2 + 距离硬层` | **proposed**: soft direction prior (w = 0.2) + distance layer |
+| `M-soft 软先验 0.2 + 距离硬层` | **proposed**: soft direction prior (w = 0.2) + distance layer |
 | `M3* 软加权 w=0.2（无硬层）` | ablation: same prior, distance layer removed |
 | `M3 软加权 w=0.5` | stronger direction weight (older setting) |
 | `M3a 硬筛后软加权` | hard filter, then soft re-weighting |

@@ -28,7 +28,7 @@ as a single accuracy number. That conflates two different questions:
 2. **Can a method pick exactly one object?** — because a robot has to grasp one cup.
 
 We measure (1) with a set-valued ruler (**U-SET**) and (2) with a single-point selector
-(**M\*\***), and show that the gap between them is a property of the *data*, not a
+(`M-soft`), and show that the gap between them is a property of the *data*, not a
 failure of the method.
 
 ## 2. Reported results
@@ -36,7 +36,7 @@ failure of the method.
 665 scorable samples, 2.8 candidates on average, all differences are paired
 (McNemar exact test, 4,000 bootstrap resamples for CIs).
 
-| Subset | n | U-SET (set ruler) | **M\*\*** (ours, single point) | M2 hard filter | M0 nearest | 7B (best prompt) | random in pool |
+| Subset | n | U-SET (set ruler) | **M-soft** (ours) | M2 hard filter | M0 nearest | 7B (best prompt) | random in pool |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | S1 all scorable | 665 | **88.4%** | **68.4%** | 62.7% | 64.8% | 57.4% | 38.3% |
 | S2 direction computable | 596 | 87.1% | **72.5%** | 66.1% | 68.5% | 61.1% | — |
@@ -206,7 +206,7 @@ After `bash scripts/run_all.sh`, `results/paper_T1_main.csv` must contain:
 | Method | S1 (665) | S2 (596) | S3 (515) |
 |---|---:|---:|---:|
 | U-SET (set ruler) | 88.4 | 87.1 | 85.0 |
-| M\*\* (ours) | 68.4 | 72.5 | 72.8 |
+| M-soft (ours) | 68.4 | 72.5 | 72.8 |
 | M2 hard filter | 62.7 | 66.1 | 65.4 |
 | M0 nearest | 64.8 | 68.5 | 68.3 |
 | LLM 7B · v2 | 57.4 | 61.1 | 61.6 |

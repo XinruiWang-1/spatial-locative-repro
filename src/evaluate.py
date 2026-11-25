@@ -15,7 +15,7 @@
   T6 第三把尺子      条件一致率 vs 条件随机基线
   T7 组件消融
   T8 演进史          A 纯文本 / B 公式 / B2 +方位（同集重算，全池设定）
-  T9 失分归因        M** 的 210 条失分二分（77 不在允许集 + 133 范围内挑错）
+  T9 失分归因        M-soft 的 210 条失分二分（77 不在允许集 + 133 范围内挑错）
   T10 权重扫描 + 5 折 CV
   T12 7B 学习基线     三套提示 × 三档 + 行为诊断（是否守住方向、集内排序、位置偏置）
 
@@ -197,7 +197,7 @@ METHODS = [
     # (显示名, 列, 性质, 说明)
     ("ORACLE 直接取标注",        "oracle",   "单点", "上限，不作方法"),
     ("U-SET 允许集合判定（口径）", "ok",       "集合", "标注落在题面允许范围"),
-    ("★ M** 软先验 0.2 + 距离硬层", "hit_final", "单点", "本文主推"),
+    ("M-soft 软先验 0.2 + 距离硬层", "hit_final", "单点", "本文主推"),
     ("M3* 软加权 w=0.2（无硬层）", "hit_m3",   "单点", "消融：去掉距离硬层"),
     ("M3 软加权 w=0.5",          "hit_m35",  "单点", "旧版软加权，方位过重"),
     ("M3a 硬筛后软加权",          "hit_m3a",  "单点", "硬筛 + 软加权"),
@@ -313,7 +313,7 @@ def main(no_fig=False):
     rows = []
     # T6b 四象限：口径 × 单点
     Q = {}
-    for nm, fc in [("M**", "hit_final"), ("M2 硬筛", "hit_m2")]:
+    for nm, fc in [("M-soft", "hit_final"), ("M2 硬筛", "hit_m2")]:
         Q[nm] = dict(
             内对=int(((d.ok) & (d[fc].astype(bool))).sum()),
             内错=int(((d.ok) & (~d[fc].astype(bool))).sum()),
@@ -344,7 +344,7 @@ def main(no_fig=False):
         ("硬筛 + 软加权（M3a）", "hit_m3a", "硬筛内再软排"),
         ("软加权 w=0.5（M3）", "hit_m35", "方向权重偏高"),
         ("软加权 w=0.2（M3*）", "hit_m3", "去掉硬层的最终软层"),
-        ("软加权 0.2 + 距离硬层（M**）", "hit_final", "本文主推"),
+        ("软加权 0.2 + 距离硬层（M-soft）", "hit_final", "本文主推"),
     ]:
         m, lo, hi = ci(d[col])
         abl.append(dict(配置=disp, 命中=m, lo=lo, hi=hi, 相对只距离=round(m - base, 1), 作用=note))
@@ -380,7 +380,7 @@ def main(no_fig=False):
     for key, disp, col in [("A", "A 纯文本 TF-IDF", "hit_A"), ("B", "B 公式 tfidf×距离", "hit_B"),
                            ("B2", "B2 公式+方位", "hit_B2"),
                            ("M0", "M0 同类池取最近（B 的退化形态）", "hit_m0"),
-                           ("M**", "M** 本文方法（同类池）", "hit_final")]:
+                           ("M-soft", "M-soft 本文方法（同类池）", "hit_final")]:
         m, lo, hi = ci(d[col])
         evo.append(dict(key=key, 阶段=disp, 命中=m, lo=lo, hi=hi))
     t8 = pd.DataFrame(evo)
@@ -419,7 +419,7 @@ def main(no_fig=False):
         # (a) 配对检验
         rows = []
         for m, dsp, hc, pc in llm_cols:
-            for opp, oc in [("M**（本文）", "hit_final"), ("M2 硬筛", "hit_m2"), ("M0 最近", "hit_m0")]:
+            for opp, oc in [("M-soft（本文）", "hit_final"), ("M2 硬筛", "hit_m2"), ("M0 最近", "hit_m0")]:
                 p, x, y = C.mcnemar(d[hc].astype(bool), d[oc].astype(bool))
                 rows.append(dict(模式=dsp, 对手=opp, LLM对=x, 对手对=y, p=p))
         for i in range(len(llm_cols) - 1):
@@ -534,10 +534,10 @@ def figs(d, t1, sw, t6, t9, t12b=None, t12d=None):
                          "axes.spines.top": False, "axes.spines.right": False})
 
     # 图 1：三档 × 五法
-    piv = t1[t1.方法.isin(["U-SET 允许集合判定（口径）", "★ M** 软先验 0.2 + 距离硬层",
+    piv = t1[t1.方法.isin(["U-SET 允许集合判定（口径）", "M-soft 软先验 0.2 + 距离硬层",
                            "M3* 软加权 w=0.2（无硬层）", "M2 硬筛 + 侧内最近", "M0 取锚点最近"])]
     piv = piv.pivot(index="方法", columns="子集", values="命中").loc[
-        ["U-SET 允许集合判定（口径）", "★ M** 软先验 0.2 + 距离硬层",
+        ["U-SET 允许集合判定（口径）", "M-soft 软先验 0.2 + 距离硬层",
          "M3* 软加权 w=0.2（无硬层）", "M2 硬筛 + 侧内最近", "M0 取锚点最近"]]
     piv.columns = ["S1 all (665)", "S2 dir-computable (596)", "S3 filtered (515)"][:len(piv.columns)]
     fig, ax = plt.subplots(figsize=(7.4, 3.4))
@@ -545,7 +545,7 @@ def figs(d, t1, sw, t6, t9, t12b=None, t12d=None):
     ax.set_ylabel("accuracy (%)")
     ax.set_xlabel("")
     ax.set_ylim(50, 95)
-    ax.set_xticklabels(["U-SET\n(set ruler)", "M**\n(ours)", "M3*", "M2\n(hard filter)", "M0"],
+    ax.set_xticklabels(["U-SET\n(set ruler)", "M-soft\n(ours)", "M3*", "M2\n(hard filter)", "M0"],
                        rotation=0, fontsize=8)
     ax.legend(fontsize=7, frameon=False, ncol=3, loc="upper center",
               bbox_to_anchor=(0.5, -0.22))
@@ -575,7 +575,7 @@ def figs(d, t1, sw, t6, t9, t12b=None, t12d=None):
     for k in ["自洽", "矛盾", "缺失(D1)"]:
         s = d[d.Lab == k]
         if len(s):
-            rows.append({"U-SET": s.ok.mean() * 100, "M**": s.hit_final.mean() * 100,
+            rows.append({"U-SET": s.ok.mean() * 100, "M-soft": s.hit_final.mean() * 100,
                          "M2": s.hit_m2.mean() * 100, "_k": k, "_n": len(s)})
     au = pd.DataFrame(rows).set_index("_k")
     ns = au["_n"].to_dict()
@@ -604,7 +604,7 @@ def figs(d, t1, sw, t6, t9, t12b=None, t12d=None):
     ax.invert_yaxis()
     ax.set_xlabel("samples")
     ax.grid(axis="x", alpha=.25, linewidth=.5)
-    ax.set_title("M** failure decomposition (n=%d)" % int(t9.n.sum()), fontsize=9)
+    ax.set_title("M-soft failure decomposition (n=%d)" % int(t9.n.sum()), fontsize=9)
     fig.tight_layout()
     fig.savefig(f"{FIG}/paper_fig4_failures.png")
     plt.close(fig)
@@ -612,7 +612,7 @@ def figs(d, t1, sw, t6, t9, t12b=None, t12d=None):
     # 图 5：7B 基线（左：与规则基线对比；右：允许集内守住率 vs 集内命中）
     if t12b is not None and len(t12b):
         fig, axs = plt.subplots(1, 2, figsize=(7.6, 3.0), gridspec_kw={"width_ratios": [1.35, 1]})
-        meth = [("M**", d.hit_final.mean() * 100), ("M2", d.hit_m2.mean() * 100),
+        meth = [("M-soft", d.hit_final.mean() * 100), ("M2", d.hit_m2.mean() * 100),
                 ("M0", d.hit_m0.mean() * 100)]
         for m, _ in LLM_MODES:
             if "hit_" + m in d.columns:
@@ -679,10 +679,10 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     A("| 尺子 | 值 | 在测什么 |")
     A("|---|---:|---|")
     A(f"| U-SET（允许集合） | **{g('ok')}%** | 标注是否落在题面允许的范围（题面平均允许 {d.A_n.mean():.2f} 个） |")
-    A(f"| M**（单点） | **{g('hit_final')}%** | 只准报一个，正好是标注 |")
+    A(f"| M-soft（单点） | **{g('hit_final')}%** | 只准报一个，正好是标注 |")
     A(f"| 条件一致率 | **{f1.loc['S1 全量','条件一致率']}%** | 在 {n_ok} 条「标注确实在允许集内」上，挑中人类那个的比例 |")
     A("")
-    qm = t6b.set_index("方法").loc["M**"]
+    qm = t6b.set_index("方法").loc["M-soft"]
     A(f"这三个数不是三个成绩，是同一件事的三层：{n} 条里 **{n_ok} 条**标注落在允许范围（{g('ok')}%）；"
       f"我们的方法 **{n_ok and int(d.hit_final.sum())} 条**挑中标注（{g('hit_final')}%）；"
       f"其中 **{int(qm.内对)} 条**在允许集内（{n_ok} × {f1.loc['S1 全量','条件一致率']}%），"
@@ -721,10 +721,10 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     A("**读法**：三张表各讲一件事，不能合成一张。")
     A("")
     A(f"- 全量上 {g('ok')} vs {g('hit_final')}，落差主要来自那 {n-len(S2)} 条无方向样本"
-      f"（M** 在上面只有 {round(d[d.Dir_Step=='不可算'].hit_final.mean()*100,1)}%，纯拖后腿）；")
-    A(f"- 剔掉它们，M** 从 {g('hit_final')} → {round(S2.hit_final.mean()*100,1)}，"
+      f"（M-soft 在上面只有 {round(d[d.Dir_Step=='不可算'].hit_final.mean()*100,1)}%，纯拖后腿）；")
+    A(f"- 剔掉它们，M-soft 从 {g('hit_final')} → {round(S2.hit_final.mean()*100,1)}，"
       f"硬筛 M2 从 {g('hit_m2')} → {round(S2.hit_m2.mean()*100,1)}，**方法一上干净数据就涨**；")
-    A(f"- 只留真被筛过的 {len(S3)} 条：M** {round(S3.hit_final.mean()*100,1)} vs "
+    A(f"- 只留真被筛过的 {len(S3)} 条：M-soft {round(S3.hit_final.mean()*100,1)} vs "
       f"硬筛 {round(S3.hit_m2.mean()*100,1)}，**差 {round((S3.hit_final.mean()-S3.hit_m2.mean())*100,1)} 点**"
       "——这是「软先验优于硬排除」最干净的一张。")
     A("")
@@ -743,12 +743,12 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
         A("")
         A(note)
         A("")
-        A("| 组 | n | U-SET | M** | M3* | M2 硬筛 | M0 | 平均允许 |")
+        A("| 组 | n | U-SET | M-soft | M3* | M2 硬筛 | M0 | 平均允许 |")
         A("|---|---:|---:|---:|---:|---:|---:|---:|")
         for _, r in tt_.iterrows():
             A(f"| {r.组} | {int(r.n)} | {r.U_SET}% | {r.Mstar}% | {r.M3s}% | {r.M2}% | {r.M0}% | {r.avg_A} |")
         A("")
-    A(f"**T2 的要点**：档越干净方向越有用（D2R 上 M** {round(t2[t2.组=='D2R'].Mstar.iloc[0],1)}%），"
+    A(f"**T2 的要点**：档越干净方向越有用（D2R 上 M-soft {round(t2[t2.组=='D2R'].Mstar.iloc[0],1)}%），"
       f"唯一例外是 D1——那里没有方向信息，软层退化成纯距离，"
       f"{round(t2[t2.组=='D1'].Mstar.iloc[0],1)}% 与 M0 完全相同，符合预期。")
     A("")
@@ -770,7 +770,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     # T5
     A("## T5 标注审计：失分到底是谁的错")
     A("")
-    A("| 组 | n | U-SET | M** | M3* | M2 硬筛 | M0 | 平均允许 |")
+    A("| 组 | n | U-SET | M-soft | M3* | M2 硬筛 | M0 | 平均允许 |")
     A("|---|---:|---:|---:|---:|---:|---:|---:|")
     for _, r in t5a.iterrows():
         A(f"| {r.组 if r.组.startswith('缺失') else '标注'+r.组} | {int(r.n)} | {r.U_SET}% | {r.Mstar}% | {r.M3s}% | {r.M2}% | {r.M0}% | {r.avg_A} |")
@@ -790,7 +790,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     # T6
     A("## T6 第三把尺子：条件一致率")
     A("")
-    A("| 子集 | n | U-SET | M** | 条件一致率 | 条件随机基线 | 增量 | 平均允许 |")
+    A("| 子集 | n | U-SET | M-soft | 条件一致率 | 条件随机基线 | 增量 | 平均允许 |")
     A("|---|---:|---:|---:|---:|---:|---:|---:|")
     for _, r in t6.iterrows():
         A(f"| {r.子集} | {int(r.n)} | {r.U_SET}% | {r.Mstar}% | **{r.条件一致率}%** | {r.条件随机基线}% | "
@@ -807,21 +807,21 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     A(f"这张表就是全文的核心论证，四句话：")
     A("")
     A(f"1. **硬筛 M2 的「外对」必然是 0**：它把另一侧全排除，标注在那侧就永远拿不到。")
-    A(f"2. 硬筛在「内对」上确实更强：{int(qm2.loc['M2 硬筛','内对'])} vs {int(qm2.loc['M**','内对'])}，"
-      f"**多 {int(qm2.loc['M2 硬筛','内对']-qm2.loc['M**','内对'])} 条**——软先验在题面说清时会吃点亏。")
-    A(f"3. 但它在「外对」上白丢 {int(qm2.loc['M**','外对'])} 条，净亏 "
-      f"{int(qm2.loc['M**','外对'])-int(qm2.loc['M2 硬筛','内对']-qm2.loc['M**','内对'])} 条。")
-    A(f"4. 总账：{int(qm2.loc['M**','内对']+qm2.loc['M**','外对'])} 对 "
+    A(f"2. 硬筛在「内对」上确实更强：{int(qm2.loc['M2 硬筛','内对'])} vs {int(qm2.loc['M-soft','内对'])}，"
+      f"**多 {int(qm2.loc['M2 硬筛','内对']-qm2.loc['M-soft','内对'])} 条**——软先验在题面说清时会吃点亏。")
+    A(f"3. 但它在「外对」上白丢 {int(qm2.loc['M-soft','外对'])} 条，净亏 "
+      f"{int(qm2.loc['M-soft','外对'])-int(qm2.loc['M2 硬筛','内对']-qm2.loc['M-soft','内对'])} 条。")
+    A(f"4. 总账：{int(qm2.loc['M-soft','内对']+qm2.loc['M-soft','外对'])} 对 "
       f"{int(qm2.loc['M2 硬筛','内对']+qm2.loc['M2 硬筛','外对'])}，"
       f"就是 {g('hit_final')}% vs {g('hit_m2')}%。")
     A("")
     A("所以「88.4 和 68.4 能不能放一张表」的答案是：**不能并排放，但可以拆开放**——"
       "四象限这一张表把两个口径同时装进去了，而且没有任何一行是白送的。")
     A("")
-    A(f"白送那 {n_free} 条（题面没约束/筛空回退）上 M** 只有 {f1.loc['白送（无约束/筛空）','Mstar']}%、"
+    A(f"白送那 {n_free} 条（题面没约束/筛空回退）上 M-soft 只有 {f1.loc['白送（无约束/筛空）','Mstar']}%、"
       f"条件一致率 {f1.loc['白送（无约束/筛空）','条件一致率']}%："
       "「任取都对」是对**范围**而言，单点仍要和人类那次随手挑对齐——这部分我们只能做到一半。"
-      "这也解释了为什么 M** 在全量上被拉低。")
+      "这也解释了为什么 M-soft 在全量上被拉低。")
     A("")
 
     # T7
@@ -838,26 +838,26 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
       "而**硬筛会把方位从修正项变成否决项，反而倒亏**。")
     A("")
 
-    # ---- T7b：为什么表里有两行几乎一样（M** 与 M3*）
+    # ---- T7b：为什么表里有两行几乎一样（M-soft 与 M3*）
     hd = d[d.layer.astype(str).str.startswith("硬")]
     n_hd, n_all = len(hd), len(d)
     hd_hit, sft_hit = int(hd.hit_final.sum()), int(hd.hit_m3.sum())
     disc = int((d.hit_final != d.hit_m3).sum())
     e7 = t7.set_index("配置")
-    r_m = e7.loc["软加权 0.2 + 距离硬层（M**）", "命中"]
+    r_m = e7.loc["软加权 0.2 + 距离硬层（M-soft）", "命中"]
     r_s = e7.loc["软加权 w=0.2（M3*）", "命中"]
-    A("### T7b 为什么表里有两行几乎一样：M** 与 M3* 差在哪")
+    A("### T7b 为什么表里有两行几乎一样：M-soft 与 M3* 差在哪")
     A("")
     A("这两行**不是「方向软版」与「方向硬版」**。方向只有一个版本，就是软的，"
       "表里没有第二个候选。它们的唯一差别是**第二步的距离硬层要不要打开**：")
     A("")
     A("| 版本 | 方向项 | 距离项 | 距离硬层 | 命中 |")
     A("|---|---|---|---|---:|")
-    A(f"| M**（主推） | 软先验 w=0.2 | 主序 1−0.4·d/dmax | **打开**（题面明写 nearest/furthest 才生效） | {r_m}% |")
+    A(f"| M-soft（主推） | 软先验 w=0.2 | 主序 1−0.4·d/dmax | **打开**（题面明写 nearest/furthest 才生效） | {r_m}% |")
     A(f"| M3*（消融） | 软先验 w=0.2 | 主序 1−0.4·d/dmax | 关闭 | {r_s}% |")
     A("")
     A(f"**硬层一共只触发了 {n_hd} 条（{round(n_hd/n_all*100,2)}%）**，在这 {n_hd} 条上："
-      f"M** 对 {hd_hit} 条、纯软层对 {sft_hit} 条 → **净 {'+' if hd_hit>sft_hit else ''}{hd_hit-sft_hit} 条**。"
+      f"M-soft 对 {hd_hit} 条、纯软层对 {sft_hit} 条 → **净 {'+' if hd_hit>sft_hit else ''}{hd_hit-sft_hit} 条**。"
       f"两版判定不同的样本只有 {disc} 条，McNemar p=1.0。")
     A("")
     A("为什么会出现「两个几乎一样的版本」？**是数据的两条事实逼出来的，不是我们留了两个方案**：")
@@ -902,7 +902,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
       "再加方位（B2）不升反微降，因为大池子里方位信息被类别误差吃掉了（只有 "
       f"{round(100-ch,1)}% 的样本类别还认错，方位救不回来）。")
     A("")
-    A("> 注：这三行是**全池设定**，与 T1 的同类池设定不同，不可与 M** 直接比大小；"
+    A("> 注：这三行是**全池设定**，与 T1 的同类池设定不同，不可与 M-soft 直接比大小；"
       "它们的作用是解释「为什么必须有几何」，不是竞争榜首。")
     A("")
     A(f"一个自洽性检查：B 在同类池里的退化形态就是「取离锚点最近」，即 M0 = {g('hit_m0')}%；"
@@ -915,7 +915,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     end2end = round(ch2 / 100 * g('hit_final'), 1)
     A("## T8b 两段式分解：瓶颈不在空间推理，在类别识别")
     A("")
-    A("| 组 | n | A 纯文本 | B 公式 | M**（同类池） | M0（同类池） |")
+    A("| 组 | n | A 纯文本 | B 公式 | M-soft（同类池） | M0（同类池） |")
     A("|---|---:|---:|---:|---:|---:|")
     for _, r in t8b.iterrows():
         A(f"| {r.组} | {int(r.n)} | {r.A}% | {r.B}% | {r.Mstar}% | {r.M0}% |")
@@ -937,7 +937,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     A("")
 
     # T9
-    A("## T9 M** 的失分去哪了")
+    A("## T9 M-soft 的失分去哪了")
     A("")
     A("| 类型 | n | 占失分 | 说明 |")
     A("|---|---:|---:|---|")
@@ -946,7 +946,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     A("")
     n_both = int(t9[t9.类型.str.startswith('标注不在允许集')].n.iloc[0])
     n_inside = int(t9.n.sum()) - n_both
-    qq = t6b.set_index("方法").loc["M**"]
+    qq = t6b.set_index("方法").loc["M-soft"]
     A(f"合计失分 {int(t9.n.sum())} = {n} − {int(d.hit_final.sum())}。拆成两块：")
     A("")
     A(f"- **{n_both} 条**标注压根不在题面允许范围（U-SET 也判错）——这不是选错，是题面与标注打架；")
@@ -963,7 +963,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     A("")
     A("| w_ori | " + " | ".join(f"{v:.1f}" for v in sw.w_ori) + " |")
     A("|---|" + "---:|" * len(sw))
-    A("| M** 命中 | " + " | ".join(f"{v}" for v in sw.命中) + " |")
+    A("| M-soft 命中 | " + " | ".join(f"{v}" for v in sw.命中) + " |")
     A("")
     A(f"最优点 w={bw:.1f} → **{bv}%**；0.1~0.4 都在 {min(sw.命中[1:5]):.1f}% 以上，曲线平，不敏感。")
     A(f"5 折交叉（按 Task_ID 分组）：每折独立选 w → **{cv_w}**，OOF = **{cv_hit:.1f}%**，"
@@ -973,7 +973,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     # 配对
     A("## T11 配对检验（同一样本逐条比）")
     A("")
-    A("| 对手 | M** 对/对手错 | M** 错/对手对 | p |")
+    A("| 对手 | M-soft 对/对手错 | M-soft 错/对手对 | p |")
     A("|---|---:|---:|---:|")
     for _, r in tt.iterrows():
         p = "<0.0001" if r.p < 1e-4 else f"{r.p:.4f}"
@@ -992,16 +992,16 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
         A("三套提示，差别只在「脚手架」多少：`v1` 只给坐标与数字；`v2` 把关系说成人话"
           "（「在 anchor 左侧 0.56 m、离你 2.2 m」）；`v3` 在 v2 基础上把两步规则明写进提示。")
         A("")
-        A("| 模式 | S1 全量 665 | S2 方向可算 596 | S3 真被筛过 515 | 对 M** 的 McNemar |")
+        A("| 模式 | S1 全量 665 | S2 方向可算 596 | S3 真被筛过 515 | 对 M-soft 的 McNemar |")
         A("|---|---:|---:|---:|---|")
         for m, dsp in LLM_MODES:
             if "hit_" + m not in d.columns:
                 continue
-            row = t12a[(t12a.模式 == dsp) & (t12a.对手.str.startswith("M**"))].iloc[0]
+            row = t12a[(t12a.模式 == dsp) & (t12a.对手.str.startswith("M-soft"))].iloc[0]
             A(f"| {dsp.replace('LLM 7B · ', '')} | **{round(d['hit_' + m].mean() * 100, 1)}%** | "
               f"{round(S2['hit_'+m].mean()*100,1)}% | {round(S3['hit_'+m].mean()*100,1)}% | "
-              f"p={pf(row.p)}（LLM 对 {int(row.LLM对)} / M** 对 {int(row.对手对)}） |")
-        A(f"| ★ M**（规则） | **{g('hit_final')}%** | {round(S2.hit_final.mean()*100,1)}% | "
+              f"p={pf(row.p)}（LLM 对 {int(row.LLM对)} / M-soft 对 {int(row.对手对)}） |")
+        A(f"| M-soft（规则） | **{g('hit_final')}%** | {round(S2.hit_final.mean()*100,1)}% | "
           f"{round(S3.hit_final.mean()*100,1)}% | — |")
         A(f"| M2 硬筛 | {g('hit_m2')}% | {round(S2.hit_m2.mean()*100,1)}% | "
           f"{round(S3.hit_m2.mean()*100,1)}% | — |")
@@ -1045,7 +1045,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
         A("")
         A("### T12c 分层：它在哪里彻底崩掉")
         A("")
-        A(f"| 组 | n | {bmd} | M** | M2 | M0 |")
+        A(f"| 组 | n | {bmd} | M-soft | M2 | M0 |")
         A("|---|---:|---:|---:|---:|---:|")
         for _, r in t12c.iterrows():
             A(f"| {r.组} | {int(r.n)} | {r.LLM}% | {r.Mstar}% | {r.M2}% | {r.M0}% |")
@@ -1100,7 +1100,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
     A("|---|---|---|")
     if len(t12b):
         A("| 同集学习基线 | ✅ 已完成 | Qwen2.5-7B × 3 套提示，T12；"
-          f"最好一套 {round(d['hit_'+best[0]].mean()*100,1)}%，显著低于 M0/M2/M** |")
+          f"最好一套 {round(d['hit_'+best[0]].mean()*100,1)}%，显著低于 M0/M2/M-soft |")
     else:
         A("| 同集学习基线 | ⏳ | `llm_pack/` 已备好，跑完放进 `llm_results/preds.jsonl` 即自动并入 |")
     A("| 第二数据集（Nr3D/SR3D） | 未做 | 需下载+对齐，不需要 GPU；投主会才需要 |")
@@ -1127,7 +1127,7 @@ def write_report(d, t1, t2, t3, t4, t5a, t5b, t6, t6b, t7, t8, t8b, t9, tt,
                  ("figs/paper_fig1..5", "五张图（含 7B 基线）")]:
         A(f"| `{f}` | {s} |")
     A("")
-    txt = "\n".join(L).replace("M**", "M\\*\\*")
+    txt = "\n".join(L)
     open(f"{RESULTS}/PAPER_EXPERIMENTS.md", "w", encoding="utf-8").write(txt)
 
 

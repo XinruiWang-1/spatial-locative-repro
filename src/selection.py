@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-最终方法 M**（2026-11-24）
+最终方法 M-soft（2026-11-24）
 
 用户规则（原话）：
   第一步判方向，另一侧排除；指定侧没有候选则这步作废、全池进第二步。
@@ -18,7 +18,7 @@
 
 两种判分口径都报
   U-SET 允许集合判定（用户口径）  : 标注落在题面允许范围内
-  M**   单点命中（真机要选一个）  : 只输出一个，正好是标注
+  M-soft   单点命中（真机要选一个）  : 只输出一个，正好是标注
 
 只读冻结数据，不改任何文件。
 """
@@ -224,7 +224,7 @@ def write_report(d, m, band, lab, rel, tests, sw, cv_hit, cv_w):
         ex_block += md_table(ex1)
         ex_block += ["",
                      f"题面只说了相对 `{a}` 的方位，没说是哪一个。按你的规则 **{' 和 '.join(al)} 都对**——这就是允许集合那把尺子。",
-                     f"标注是 {gt}，在范围里 → 算对；M** 在 {' / '.join(al)} 里也挑了 {pk} → 另一把尺子也加一分。", ""]
+                     f"标注是 {gt}，在范围里 → 算对；M-soft 在 {' / '.join(al)} 里也挑了 {pk} → 另一把尺子也加一分。", ""]
     if ex2 is not None:
         al = [chr(65 + i) for i in ex2["A"]]
         gt, pk = chr(65 + ex2["ti"]), chr(65 + ex2["pick"])
@@ -233,10 +233,10 @@ def write_report(d, m, band, lab, rel, tests, sw, cv_hit, cv_w):
         ex_block += md_table(ex2)
         ex_block += ["",
                      f"**{' 和 '.join(al)} 都在题面说的那一侧，题面没说挑哪个，所以两个都对（口径算对）。**",
-                     f"但真机必须报一个：M** 报了 {pk}（{ex2['d_anchor'][ex2['pick']]:.2f} m、cos {ex2['cos'][ex2['pick']]:+.2f}），"
+                     f"但真机必须报一个：M-soft 报了 {pk}（{ex2['d_anchor'][ex2['pick']]:.2f} m、cos {ex2['cos'][ex2['pick']]:+.2f}），"
                      f"标注却是 {gt}（{ex2['d_anchor'][ex2['ti']]:.2f} m、cos {ex2['cos'][ex2['ti']]:+.2f}）→ 单点算错。", ""]
 
-    L = ["# 最终方法 M**：两个数、一个决定、能写进论文的说法", "",
+    L = ["# 最终方法 M-soft：两个数、一个决定、能写进论文的说法", "",
          f"> 数据：`clean_spatial_ext.csv` 冻结 v1.0 的 **{n}** 条可判分样本，只读，未改一个字节。",
          "> 口径不变：方向 = 机器人→锚点视线，距离 = 到锚点距离。原句写 `to you` 的按字面用机器人坐标（仅 4 条）。",
          "> 代码 `eval_final.py`，`python eval_final.py` 复现本文全部数字。", "",
@@ -245,7 +245,7 @@ def write_report(d, m, band, lab, rel, tests, sw, cv_hit, cv_w):
          "前者问「答案在不在题面允许的范围内」，后者问「只报一个，报对没有」。", "",
          "| 尺子 | 数值 | 95% CI | 在测什么 |", "|---|---:|---|---|",
          f"| 允许集合判定 U-SET（你的口径） | **{uset}%** | [{uset_lo}, {uset_hi}] | 标注是否落在题面允许范围（题面平均允许 {avgA:.2f} 个） |",
-         f"| 单点 M**（本文主推） | **{fin}%** | [{fin_lo}, {fin_hi}] | 只能输出一个，正好是标注 |", "",
+         f"| 单点 M-soft（本文主推） | **{fin}%** | [{fin_lo}, {fin_hi}] | 只能输出一个，正好是标注 |", "",
          f"## 1 为什么 {uset:.1f}% 和 {fin:.1f}% 不矛盾：拿两条真样本走一遍", "",
          *ex_block,
          f"**{n} 条里这种「题面平均允许 {avgA:.2f} 个、却只能报一个」的落差，就是 {uset}% 与 {fin}% 的全部差距。**",
@@ -253,7 +253,7 @@ def write_report(d, m, band, lab, rel, tests, sw, cv_hit, cv_w):
          "① 题面没写清该挑哪个；② 标注者自己也不总按题面挑。", "",
          "## 2 为什么把「排除」换成「权重」", "",
          "你原规则的第一步是**硬排除**（另一侧全不要）。看它分组表现：", "",
-         "| 子集 | n | U-SET | M2 硬排除 | M** 软先验 | M0 只取最近 |",
+         "| 子集 | n | U-SET | M2 硬排除 | M-soft 软先验 | M0 只取最近 |",
          "|---|---:|---:|---:|---:|---:|"]
     for name in ["自洽", "违反"]:
         sub = d[d.label_side.map({True: "自洽", False: "违反"}) == name]
@@ -273,14 +273,14 @@ def write_report(d, m, band, lab, rel, tests, sw, cv_hit, cv_w):
           "方位权重从 0（纯距离）扫到 1（纯方位），硬层固定：", "",
           "| w_ori | " + " | ".join(f"{v:.1f}" for v in sw.w_ori) + " |",
           "|---|" + "---:|" * len(sw),
-          "| M** 命中 | " + " | ".join(f"{v}" for v in sw.命中) + " |", "",
+          "| M-soft 命中 | " + " | ".join(f"{v}" for v in sw.命中) + " |", "",
           f"最优点 w={bw:.1f} → **{bv}%**；曲线很平（0.1~0.4 都在 {min(sw.命中[1:5]):.1f}% 以上），不敏感。", "",
           f"5 折交叉验证（按 Task_ID 分组切折，同一任务不跨折）：每折独立选 w，**5 折选中 {cv_w}**，OOF = **{cv_hit:.1f}%**。",
           f"与全表 {bv}% 一致 —— **0.2 是从训练折里选的，不是拿测试折试出来的**。", "",
           f"顺带解释老版 M3：它用 w=0.5，只有 {m35}%，因为 w 越大越信方位，而方位在这份数据里本来就不太靠得住。", "",
           f"## 4 主表（同一批 {n} 条，一把尺子）", "",
           "| 方法 | 类型 | 命中率 | 95% CI | 说明 |", "|---|---|---:|---|---|"]
-    note = {"★ M**": "本文主推：软先验 0.2 + 题面明写距离时硬取",
+    note = {"M-soft": "本文主推：软先验 0.2 + 题面明写距离时硬取",
             "U-SET": "你的判分口径：标注落在允许范围内",
             "M3*": "消融：去掉距离硬层，纯软加权 0.2",
             "M3 软加权 w=0.5": "论文旧版软加权，方位权重过高",
@@ -297,29 +297,29 @@ def write_report(d, m, band, lab, rel, tests, sw, cv_hit, cv_w):
           f"这 {len(mx)} 条还正好把 §13 的结论再证一遍（见 §6）。", "",
           "## 5 分层与显著性", "",
           "### 5.1 按数据档", "",
-          "| 档 | n | U-SET | M** | M3* | M2 硬排除 | M0 |", "|---|---:|---:|---:|---:|---:|---:|"]
+          "| 档 | n | U-SET | M-soft | M3* | M2 硬排除 | M0 |", "|---|---:|---:|---:|---:|---:|---:|"]
     for _, r in band.iterrows():
-        L.append(f"| {r.name} | {int(r.n)} | {r['U-SET']:.1f}% | {r['M**']:.1f}% | "
+        L.append(f"| {r.name} | {int(r.n)} | {r['U-SET']:.1f}% | {r['M-soft']:.1f}% | "
                  f"{r['M3*']:.1f}% | {r['M2']:.1f}% | {r['M0']:.1f}% |")
     d2r = band.loc["D2R"]
     L += ["",
-          f"D2R（锚点由同场景补齐、标注自洽 93%）上 M** {d2r['M**']:.1f}%、硬排除 {d2r['M2']:.1f}% —— **数据越干净，方向越有用**，",
+          f"D2R（锚点由同场景补齐、标注自洽 93%）上 M-soft {d2r['M-soft']:.1f}%、硬排除 {d2r['M2']:.1f}% —— **数据越干净，方向越有用**，",
           "再次说明瓶颈在标注不在方法。",
-          "D1（无可算锚点，69 条）M** 33.3% = M0：没有方向信息时软层退化成纯距离，符合预期，这 69 条按你的话「不算」。", "",
+          "D1（无可算锚点，69 条）M-soft 33.3% = M0：没有方向信息时软层退化成纯距离，符合预期，这 69 条按你的话「不算」。", "",
           "### 5.2 按方位类型", "",
-          "| 类型 | n | U-SET | M** | M2 硬排除 | M0 |", "|---|---:|---:|---:|---:|---:|"]
+          "| 类型 | n | U-SET | M-soft | M2 硬排除 | M0 |", "|---|---:|---:|---:|---:|---:|"]
     for _, r in rel.iterrows():
-        L.append(f"| {r.name} | {int(r.n)} | {r['U-SET']:.1f}% | {r['M**']:.1f}% | "
+        L.append(f"| {r.name} | {int(r.n)} | {r['U-SET']:.1f}% | {r['M-soft']:.1f}% | "
                  f"{r['M2']:.1f}% | {r['M0']:.1f}% |")
     L += ["", "### 5.3 配对检验（同样本逐条比）", "",
-          "| 对手 | M** 对 / 对手错 | M** 错 / 对手对 | p |", "|---|---:|---:|---:|"]
+          "| 对手 | M-soft 对 / 对手错 | M-soft 错 / 对手对 | p |", "|---|---:|---:|---:|"]
     for t in tests:
         pv = "<0.0001" if t["p"] < 1e-4 else f"{t['p']:.4f}"
         L.append(f"| {t['对手']} | {t['M对对手错']} | {t['对手对M错']} | {pv} |")
     L += ["",
           "对旧基线 M0 与旧版你的规则 M2 都显著更好；对纯软加权 M3* 差 1 条样本（p=1.0）—— 硬层不影响结论。", "",
           "## 6 那 4 条硬距离样本（顺带再证 §13）", "",
-          "| 题面 | 字面要求 | 标注离锚点第几近 | M** 取 | 结果 |", "|---|---|---|---|---|"]
+          "| 题面 | 字面要求 | 标注离锚点第几近 | M-soft 取 | 结果 |", "|---|---|---|---|---|"]
     for r in mx.to_dict("records"):
         kind, rank, ref = r["dist_hard"]
         word = "最近" if kind == "min" else "最远"
@@ -347,7 +347,7 @@ def write_report(d, m, band, lab, rel, tests, sw, cv_hit, cv_w):
           f"真被题面筛过一遍的 {n_real} 条是 {uset_real}%。报数必须同时给这几个。",
           "2. **第 3 层（文本）没真正用上**：颜色在 ALFRED 里不落字段，状态谓词在这批样本里几乎不出现，所以「按文本选」等价于「按类别选」。",
           f"3. **样本量**：{n} 条来自 8051 个任务里的可判分子集（A 档 {int(band.loc['A'].n)}）；C 档仅 {int(cband.n)} 条"
-          f"（口径 {cband['U-SET']:.1f}%、单点 {cband['M**']:.1f}%），不建议单独下结论。", "",
+          f"（口径 {cband['U-SET']:.1f}%、单点 {cband['M-soft']:.1f}%），不建议单独下结论。", "",
           "## 8 文件", "",
           "| 文件 | 内容 |", "|---|---|",
           "| `eval_final.py` | 本脚本（只读冻结数据） |",
@@ -372,7 +372,7 @@ def main():
             mm, lo, hi = ci(list(d[col]))
         rows.append(dict(方法=name, n=n, 命中=mm, lo=lo, hi=hi, 性质=kind))
 
-    add("★ M** 单点（软先验 0.2 + 显式距离硬约束）", "hit_final")
+    add("M-soft 单点（软先验 0.2 + 显式距离硬约束）", "hit_final")
     add("U-SET 允许集合判定（你的口径）", None, "集合")
     add("M3* 软加权 w=0.2（无距离硬层）", "hit_m3")
     add("M3 软加权 w=0.5（论文旧版）", "hit_m35")
@@ -392,7 +392,7 @@ def main():
     def tab(by):
         return d.groupby(by).apply(lambda gg: pd.Series({
             "n": len(gg), "U-SET": round(gg.ok.mean() * 100, 1),
-            "M**": round(gg.hit_final.mean() * 100, 1),
+            "M-soft": round(gg.hit_final.mean() * 100, 1),
             "M3*": round(gg.hit_m3.mean() * 100, 1),
             "M2": round(gg.hit_m2.mean() * 100, 1),
             "M0": round(gg.hit_m0.mean() * 100, 1)}))
@@ -403,7 +403,7 @@ def main():
     print("\n方位类型:\n" + rel.to_string())
     lab = d.groupby(d.label_side.map({True: "自洽", False: "违反", None: "无标注"})).apply(
         lambda gg: pd.Series({"n": len(gg), "U-SET": round(gg.ok.mean() * 100, 1),
-                              "M**": round(gg.hit_final.mean() * 100, 1),
+                              "M-soft": round(gg.hit_final.mean() * 100, 1),
                               "M2": round(gg.hit_m2.mean() * 100, 1),
                               "M0": round(gg.hit_m0.mean() * 100, 1)}))
     print("\n标注一致性:\n" + lab.to_string())
