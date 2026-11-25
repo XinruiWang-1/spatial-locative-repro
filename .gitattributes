@@ -1,0 +1,9 @@
+# Keep shell scripts executable with LF endings on every platform.
+*.sh   text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf
+*.csv  text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.png  binary
+*.gz   binary

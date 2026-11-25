@@ -1,0 +1,6 @@
+# Optional: only needed to re-run the 7B baseline (src/inference_llm.py).
+# Reported run: Qwen2.5-7B-Instruct, bf16, greedy, batch 8, single NVIDIA RTX A5000 (24 GB).
+torch==2.14.1
+transformers==5.24.0
+accelerate==1.11.0
+bitsandbytes==0.48.0

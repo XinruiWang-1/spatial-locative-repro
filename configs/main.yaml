@@ -1,0 +1,31 @@
+# Main experiment: two rulers + the proposed single-point selector.
+# All values here are the ones used for the reported numbers; do not tune on test.
+
+data:
+  # frozen sample table, sha256 recorded in data/DATA_LOCK.json
+  samples: data/clean_spatial_ext.csv
+  # derived geometry assets (gzip in data/derived/)
+  candidates: data/derived/loc_candidates.json.gz
+  anchors: data/derived/loc_anchors.json.gz
+  scorable_flag: Scorable == 1        # 665 of 1392 rows are scorable
+
+subsets:
+  S1_all: 665                          # every scorable sample
+  S2_direction: 596                    # drop 69 samples with no usable anchor
+  S3_filtered: 515                     # drop another 81 empty-filter fallbacks
+
+ruler_set:                              # measurement 1: is the annotation inside
+  rule: cos(robot->anchor, anchor->candidate) > 0   # the half-plane named by the instruction
+  result: 88.4                          # percent of 665
+
+selector:                               # measurement 2: pick exactly one object
+  direction_weight: 0.2                 # soft prior on the named side (not a hard filter)
+  hard_filter_when_explicit_distance: true   # only when the instruction says "nearest"
+  distance: to_anchor                   # metres, Euclidean in the x-z plane
+  tie_break: highest direction score, then smallest distance
+
+evaluation:
+  bootstrap_resamples: 4000
+  bootstrap_seed: 0
+  confidence: 0.95
+  paired_test: mcnemar_exact

@@ -1,0 +1,28 @@
+# 7B learning baseline (reported in Table T12).
+# Only needed if you want to re-run the LLM; results/llm_predictions.jsonl already
+# contains the predictions used in the paper, so the tables reproduce without a GPU.
+
+model:
+  name: Qwen/Qwen2.5-7B-Instruct
+  revision: main
+  dtype: bfloat16
+  load_4bit: false
+  device_map: auto
+
+generation:
+  do_sample: false            # greedy, single run (no CoT, no self-consistency)
+  max_new_tokens: 16
+  batch_size: 8
+  padding_side: left          # decoder-only batched generation
+
+prompts:
+  v1_numeric: coordinates as raw numbers
+  v2_verbal: relations verbalised ("0.56 m left of the dresser")
+  v3_cascade: v2 plus the two-step rule written out
+
+input:  data/llm_prompts.jsonl   # 665 samples x 3 prompt variants
+output: results/llm_predictions.jsonl
+
+hardware:
+  gpu: 1 x NVIDIA RTX A5000 (24 GB)
+  peak_memory_gb: 15.2

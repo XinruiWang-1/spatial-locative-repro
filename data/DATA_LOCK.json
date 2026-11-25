@@ -1,0 +1,174 @@
+{
+  "version": "v1.0",
+  "locked_at": "2026-11-24 12:17:32",
+  "rule": "方向 = 机器人→锚点视线；距离 = 到锚点的欧氏距离",
+  "files": [
+    {
+      "path": "clean_spatial_ext.csv",
+      "bytes": 409855,
+      "sha256": "336aadeda238aab1baba30281c923b94f274e80d025e178c6b258eabcb1425c1",
+      "mtime": "2026-11-24 12:08",
+      "rows": 1392,
+      "cols": [
+        "Sample_ID",
+        "Task_ID",
+        "Split",
+        "Instruction",
+        "Target_Category",
+        "Target_Object",
+        "Rel_Type",
+        "Rel_Kind",
+        "Side",
+        "Anchor_Name",
+        "Anchor_Phrase",
+        "Anchor_X",
+        "Anchor_Y",
+        "Robot_X",
+        "Robot_Y",
+        "Num_Same",
+        "Target_Idx",
+        "D_Target",
+        "Side_Cos",
+        "Label_In_Side",
+        "Band",
+        "Scorable",
+        "Constraint",
+        "Anchor_Status",
+        "Judge",
+        "Status",
+        "Dist_Ref",
+        "Note"
+      ],
+      "role": "最终数据集：A/B/C + D1/D2R/D2/D0，含 Status/Judge/Dist_Ref"
+    },
+    {
+      "path": "clean_spatial.csv",
+      "bytes": 126022,
+      "sha256": "8fd226dc3a626fa089b43487a6207caa618c66fe2a8c8e85b7a297bbd1da9fa0",
+      "mtime": "2026-11-24 11:46",
+      "rows": 523,
+      "cols": [
+        "Sample_ID",
+        "Task_ID",
+        "Split",
+        "Instruction",
+        "Target_Category",
+        "Rel_Type",
+        "Rel_Kind",
+        "Side",
+        "Anchor_Name",
+        "Anchor_Phrase",
+        "Anchor_X",
+        "Anchor_Y",
+        "Robot_X",
+        "Robot_Y",
+        "Num_Same",
+        "Target_Idx",
+        "D_Target",
+        "Side_Cos",
+        "Label_In_Side"
+      ],
+      "role": "主集 A/B/C（523 条，无扩展档）"
+    },
+    {
+      "path": "scene_anchors.json",
+      "bytes": 197211,
+      "sha256": "a944f9a3e8a1fffb95b3d1b39c542c433846f33f6e715a920c109738bd05c356",
+      "mtime": "2026-11-24 11:59",
+      "keys": 112,
+      "role": "场景级容器坐标（D2R 73 条唯一依赖，按 scene_num 汇总）"
+    },
+    {
+      "path": "task_scene.json",
+      "bytes": 300510,
+      "sha256": "df8930ae8f63fb8ea7a12340772ca75eda1f68d1724a7abc994101c3494147e0",
+      "mtime": "2026-11-24 12:00",
+      "keys": 8051,
+      "role": "task_id → scene_num 映射（8051 条）"
+    }
+  ],
+  "code": [
+    {
+      "path": "_archive/2026-11-24_cleanup/04_scratch/clean_by_direction_distance.py",
+      "sha256": "4d0028249973eded71243ecac54a622b82de7edb8596874708717acc6d6447f7"
+    },
+    {
+      "path": "extend_clean_917.py",
+      "sha256": "43cc28237fe6ea1311c7d158b8e20e41ef97c2f5bb5b8882a7048bcd464cd250"
+    },
+    {
+      "path": "build_scene_anchors.py",
+      "sha256": "c76e2ffa04b2eae54759f89e377090cff55938dc8309779a7bfdfcc3c3157191"
+    },
+    {
+      "path": "audit_final_clean.py",
+      "sha256": "3c177de980e2d5803f3223327673f5f3d2a55b0d603ffd4becf135fc990c3f44"
+    },
+    {
+      "path": "eval_cascade.py",
+      "sha256": "6b2b05c992ef4c6595e5c3957b74735c732cfaeb089e6432f675351074cc18d5"
+    },
+    {
+      "path": "eval_controls.py",
+      "sha256": "5635629dd50cdf890c51e103dabe6ecb4b3a0a5046baa6b8a45b1d91f6dc9dee"
+    },
+    {
+      "path": "eval_final.py",
+      "sha256": "56d34b1710781936c71b3b2a0d30176608613c30a1466f782aed11a3543b0dbf"
+    },
+    {
+      "path": "eval_paper.py",
+      "sha256": "0d55dc510fd4cebc369a4290375ecad2438099bf0dbd34d78a57e8cdc7c948f2"
+    },
+    {
+      "path": "data_lock.py",
+      "sha256": "e6e6147db65c01d41868e3eed7a23da282c81da2fef1951481caccc27a64a665"
+    }
+  ],
+  "upstream": [
+    {
+      "path": "dataset_locative.csv",
+      "sha256": "1d852291e393d112f5a505a4a959d71858382ed02151c06a7c00e69b327bcc1a"
+    },
+    {
+      "path": "loc_candidates.json",
+      "sha256": "f745a5ebc342314ce2e13f7f43e247761213f50459110b3a3291c22e174e739b"
+    },
+    {
+      "path": "loc_anchors.json",
+      "sha256": "8d31f367ae7518d5761f00909f8e588d7a023270f05993d9c2a5e40a6a048b6f"
+    }
+  ],
+  "dataset": {
+    "total": 1392,
+    "by_band_status": {
+      "A/OK": 461,
+      "B/OK": 34,
+      "C/OK": 28,
+      "D0/UNDEFINED": 225,
+      "D1/NONE": 69,
+      "D2/UNDEFINED": 502,
+      "D2R/OK": 73
+    },
+    "scorable": 665,
+    "by_judge": {
+      "-": 727,
+      "c/a/t/e/g/o/r/y": 69,
+      "s/i/d/e": 596
+    },
+    "by_dist_ref": {
+      "a/n/c/h/o/r": 1390,
+      "r/o/b/o/t": 2
+    },
+    "by_split": {
+      "train": 1298,
+      "valid_seen": 49,
+      "valid_unseen": 45
+    },
+    "by_rel_type": {
+      "lr": 1071,
+      "front": 175,
+      "behind": 146
+    }
+  }
+}
