@@ -11,7 +11,7 @@ refers to. The repository holds the frozen sample table, the geometry reference
 implementation, all baselines, the 7B baseline, and the scripts that regenerate every
 table and figure.
 
-Two commands reproduce everything (CPU only, about 10 s):
+Two commands reproduce everything (CPU only, about 15 s):
 
 ```bash
 pip install -r requirements.txt
@@ -49,9 +49,10 @@ Three findings.
 1. Direction should stay a soft prior. Hard-filtering the wrong side drops accuracy from
    68.4% to 62.7% (p < 0.0001), because 157 of the 665 human annotations sit on the side
    opposite to the words.
-2. The distance rule is almost never tested. "Take the nearest" fires on 4 of 665
-   samples (0.6%), since ALFRED annotators almost never write "nearest". Distance is a
-   geometric prior we chose, not a constraint carried by the sentence.
+2. The distance rule is almost never tested. Only 8 of 665 instructions (1.2%) mention
+   nearest or closest, and in 4 of those the reference object has usable coordinates, so
+   the rule fires on 4 samples (0.6%). Distance is a geometric prior we chose, not a
+   constraint carried by the sentence.
 3. A 7B LLM keeps the direction but cannot rank inside it. Qwen2.5-7B-Instruct picks an
    object in the allowed half-plane 98.6% of the time, higher than the annotations' own
    88.4%, yet reaches only 57.4% overall and loses to a one-line "nearest" rule. Three
@@ -105,16 +106,18 @@ spatial-locative-repro/
 
 | Component | Requirement |
 |---|---|
-| Main experiment (`scripts/run_all.sh`) | any CPU, < 1 GB RAM, about 10 s |
+| Main experiment (`scripts/run_all.sh`) | any CPU, < 1 GB RAM, about 15 s |
 | 7B baseline (`scripts/run_llm_7b.sh`) | 1 x NVIDIA RTX A5000 (24 GB), about 15.2 GB peak |
-| Disk | about 10 MB for the repo, about 36 GB if you also download the raw ALFRED release |
+| Disk | about 8 MB of files, 15 MB with the git history; about 36 GB more if you also download the raw ALFRED release |
 
 The reported 7B numbers were produced on the course-provided RTX A5000 (24 GB), in
 bfloat16, with greedy decoding and batch size 8.
 
 ## 5. Software and configuration
 
-Tested with Python 3.15.0 on Windows and Linux.
+Tested with Python 3.15.0 on Windows 11. The code does plain pandas, numpy and
+matplotlib arithmetic and contains no OS-specific paths, but it has not been run on
+Linux or macOS.
 
 ```
 numpy==2.5.4
@@ -271,7 +274,8 @@ bash scripts/run_all.sh             # merges the predictions into T1 and T12
   self-consistency). The LLM result is a negative baseline for this model, not a claim
   about LLMs in general.
 * 68.4% is a given-category number. It does not answer "is the object a pen". End to end,
-  where text predicts the category and geometry picks the instance, is 38.9%.
+  where the category is not given and a TF-IDF text score competes with distance over the
+  full pool, is 38.9%.
 * There is no closed-loop rollout in AI2-THOR. The metric is "chose the right object",
   not task success.
 * Method names in the CSV files are Chinese, the author's working language. The mapping
@@ -321,7 +325,7 @@ configuration, inference, evaluation, reported result. Each link and where to fi
 | How is the data prepared? | `data/README.md`: how the 665 scorable samples were cut; rebuild scripts optional |
 | Which configuration reproduces the main experiment? | §5: `configs/main.yaml` records `W_ORI = 0.2`; no script takes a flag |
 | How is the model trained? | §9: no training step; the one hyper-parameter comes from a 5-fold sweep |
-| How is the model evaluated? | §10: `bash scripts/run_all.sh`, about 10 s on CPU |
+| How is the model evaluated? | §10: `bash scripts/run_all.sh`, about 15 s on CPU |
 | Where are the metrics stored? | `results/paper_T*.csv`, one file per table, plus `paper_detail.csv` per sample |
 | Do they match the paper? | §11 gives the five values to compare in `paper_T1_main.csv` |
 | Is the A5000 required? | No. Only regenerating the 7B predictions needs it; they are committed |
